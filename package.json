@@ -1,0 +1,19 @@
+{
+    "name": "tembo-app",
+    "version": "1.0.0",
+    "description": "Aplicação de registro e consulta de usuários com Tembo.io",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "nodemon server.js"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.21.2",
+        "pg": "^8.13.3",
+        "tembo-app": "file:"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.9"
+    }
+}
