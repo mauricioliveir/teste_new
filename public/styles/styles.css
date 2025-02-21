@@ -113,13 +113,13 @@ input::placeholder {
 /* Estilos para o header */
 header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     background-color: #f8f9fa;
-    padding: 10px 20px;
+    padding: 0px 20px;
     border-bottom: 1px solid #ddd;
-    flex-wrap: wrap;
+    font-family: 'Roboto', sans-serif;
 }
+
 /* Estilos para a imagem no header */
 header img {
     height: 130px;
@@ -195,7 +195,17 @@ nav ul li a:hover {
 }
 
 /* Responsividade do Header */
-user-info {
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    flex-wrap: wrap;
+}
+
+.user-info {
     display: flex;
     align-items: center;
     gap: 10px;
