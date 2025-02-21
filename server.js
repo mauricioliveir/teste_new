@@ -75,31 +75,20 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Rota para redefinição de senha
-app.post('/reset-password', async (req, res) => {
-    const { email } = req.body;
-
+// Rota para listar usuários
+app.get('/users', async (req, res) => {
     try {
-        // Verifique se o e-mail existe no banco de dados
-        const result = await pool.query(
-            'SELECT * FROM public.users WHERE email = $1',
-            [email]
-        );
-
-        if (result.rows.length > 0) {
-            res.json({ success: true, message: 'Instruções de redefinição de senha enviadas para o e-mail.' });
-        } else {
-            res.status(404).json({ success: false, message: 'E-mail não encontrado.' });
-        }
+        const result = await pool.query('SELECT * FROM public.users');
+        res.json({ success: true, users: result.rows });
     } catch (err) {
-        console.error('Erro ao redefinir senha:', err);
+        console.error('Erro ao buscar usuários:', err);
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
     }
 });
 
-// Rota padrão para servir o arquivo login.html
+// Rota padrão para servir o arquivo index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Iniciar o servidor

@@ -1,39 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Login
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password }),
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert(result.message);
-                    localStorage.setItem('isLoggedIn', 'true');
-                    window.location.href = 'dashboard.html';
-                } else {
-                    document.getElementById('error-message').textContent = result.message;
-                }
-            } catch (error) {
-                console.error('Erro ao fazer login:', error);
-                alert('Erro ao conectar ao servidor.');
-            }
-        });
-    }
-
-    // Registro
     const registerForm = document.getElementById('register-form');
+    const loginForm = document.getElementById('login-form');
+    const errorMessage = document.getElementById('error-message');
+
     if (registerForm) {
         registerForm.addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -54,43 +23,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (response.ok) {
                     alert(result.message);
-                    window.location.href = 'login.html';
+                    window.location.href = '/dashboard.html';
                 } else {
-                    document.getElementById('error-message').textContent = result.message;
+                    errorMessage.textContent = result.message;
                 }
             } catch (error) {
                 console.error('Erro ao registrar:', error);
-                alert('Erro ao conectar ao servidor.');
+                errorMessage.textContent = 'Erro ao conectar ao servidor.';
             }
         });
     }
 
-    // Redefinição de senha
-    const resetPasswordForm = document.getElementById('reset-password-form');
-    if (resetPasswordForm) {
-        resetPasswordForm.addEventListener('submit', async function(event) {
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
 
             try {
-                const response = await fetch('/reset-password', {
+                const response = await fetch('/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email }),
+                    body: JSON.stringify({ email, password }),
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
                     alert(result.message);
+                    window.location.href = '/dashboard.html';
                 } else {
-                    document.getElementById('error-message').textContent = result.message;
+                    errorMessage.textContent = result.message;
                 }
             } catch (error) {
-                console.error('Erro ao redefinir senha:', error);
-                alert('Erro ao conectar ao servidor.');
+                console.error('Erro ao fazer login:', error);
+                errorMessage.textContent = 'Erro ao conectar ao servidor.';
             }
         });
     }
