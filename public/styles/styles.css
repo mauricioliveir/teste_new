@@ -194,7 +194,7 @@ nav ul li a:hover {
     font-weight: 500;
 }
 
-/* Estilos específicos para a página com barra lateral */
+//* Estilos específicos para a página com barra lateral */
 .sidebar-page {
     display: flex;
     flex-direction: column;
@@ -203,6 +203,9 @@ nav ul li a:hover {
 
 .sidebar-page header {
     flex-shrink: 0; /* Impede que o header encolha */
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
 }
 
 .sidebar-page .sidebar {
@@ -210,9 +213,10 @@ nav ul li a:hover {
     background-color: #033b77;
     padding: 20px;
     position: fixed;
-    top: 100px; /* Ajuste conforme a altura do header */
+    top: 120px; /* Ajuste conforme a altura do header */
     left: 0;
     bottom: 0;
+    overflow-y: auto; /* Adiciona scroll se o conteúdo for muito longo */
 }
 
 .sidebar-page .sidebar nav ul {
@@ -248,4 +252,10 @@ nav ul li a:hover {
 
 .sidebar-page .footer {
     margin-top: auto; /* Mantém o footer no final da página */
+    background-color: #f8f9fa;
+    padding: 24px;
+    text-align: center;
+    font-family: "Roboto", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
 }
