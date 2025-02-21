@@ -5,10 +5,17 @@ if (!isLoggedIn || isLoggedIn !== 'true') {
     window.location.href = "login.html";
 }
 
+// Recupera o nome do usuário do sessionStorage
+const username = sessionStorage.getItem('username');
+if (username) {
+    document.getElementById('username').textContent = username;
+}
+
 // Adiciona funcionalidade ao botão de logout
-document.getElementById('logout-button').addEventListener('click', function() {
-    // Remove o estado de login
+document.getElementById('logout-button-header').addEventListener('click', function() {
+    // Remove o estado de login e o nome do usuário
     sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('username');
     // Redireciona para a página de login
     window.location.href = "login.html";
 });

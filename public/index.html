@@ -6,17 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENAC - Programa de Simulação</title>
     <link rel="stylesheet" href="./styles/style-index.css">
+    <!-- Adicione o link para o ícone de logout (exemplo usando FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
         <img src="./assets/senac-logo-0.png" alt="Logo">
-        <button id="logout-button-header">Sair</button>
+        <div id="user-info">
+            <span id="username"></span>
+            <i class="fas fa-door-open logout-icon" id="logout-button-header"></i>
+        </div>
     </header>
 
     <aside class="sidebar">
         <nav>
             <ul>
-                <li><a href="#">Home</a></li>
                 <li><a href="#">Financeiro</a></li>
                 <li><a href="#">Departamento Pessoal</a></li>
                 <li><a href="#">Vendas</a></li>
