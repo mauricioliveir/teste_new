@@ -16,7 +16,7 @@ const pool = new Pool({
     password: process.env.PGPASSWORD,
     port: process.env.PGPORT,
     ssl: {
-        rejectUnauthorized: false,
+        rejectUnauthorized: false, // Use true em produção com certificado válido
     },
 });
 
@@ -80,7 +80,7 @@ app.post('/reset-password', async (req, res) => {
             return res.status(404).json({ success: false, message: 'E-mail não encontrado.' });
         }
         
-        const resetToken = Math.random().toString(36).substring(2, 10); // Gerar um token simples (idealmente, use JWT ou UUID)
+        const resetToken = Math.random().toString(36).substr(2, 8); // Gerar um token simples (idealmente, use JWT ou UUID)
         await pool.query('UPDATE public.users SET reset_token = $1 WHERE email = $2', [resetToken, email]);
 
         const resetLink = `http://localhost:${port}/reset-password/${resetToken}`;
