@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (response.ok) {
                     alert(result.message);
-                    window.location.href = '/dashboard.html';
+                    window.location.href = '/login.html';
                 } else {
                     errorMessage.textContent = result.message;
                 }
