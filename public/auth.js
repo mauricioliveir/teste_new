@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (response.ok) {
                     alert(result.message);
-                    window.location.href = '/dashboard.html';
+                    window.location.href = '/index.html';
                 } else {
                     errorMessage.textContent = result.message;
                 }
