@@ -158,30 +158,6 @@ header img {
 .user__login:hover{
     color: #007bff;
 }
-/* Estilos para o menu */
-nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-}
-
-nav ul li {
-    margin-right: 30px;
-}
-
-nav ul li a {
-    display: flex;
-    text-decoration: none;
-    color: #033b77;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    gap: 20px;
-}
-
-nav ul li a:hover {
-    color: #007bff;
-}
 
 /* Estilos para o footer */
 .footer {
