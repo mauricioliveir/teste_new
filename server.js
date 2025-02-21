@@ -58,16 +58,23 @@ app.post('/register', async (req, res) => {
 // Rota para login
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
+
     try {
-        const result = await pool.query('SELECT * FROM public.users WHERE email = $1 AND password = $2', [email, password]);
-        if (result.rows.length > 0) {
-            res.json({ success: true, message: 'Login bem-sucedido!', user: result.rows[0] });
+        const query = 'SELECT * FROM usuarios WHERE email = ? AND password = ?';
+        const [rows] = await db.execute(query, [email, password]);
+
+        if (rows.length > 0) {
+            const user = rows[0];
+            res.status(200).json({
+                message: 'Login bem-sucedido!',
+                username: user.nome, // Retorna o nome do usuário
+            });
         } else {
-            res.status(401).json({ success: false, message: 'Credenciais inválidas.' });
+            res.status(401).json({ message: 'Email ou senha incorretos.' });
         }
-    } catch (err) {
-        console.error('Erro ao fazer login:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        res.status(500).json({ message: 'Erro ao conectar ao servidor.' });
     }
 });
 

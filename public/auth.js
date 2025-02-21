@@ -4,35 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const resetPasswordForm = document.getElementById('reset-password-form');
     const errorMessage = document.getElementById('error-message');
 
-    // Registro de usuário
-    if (registerForm) {
-        registerForm.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const nome = document.getElementById('nome').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, email, password }),
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert(result.message);
-                    window.location.href = '/login.html';
-                } else {
-                    errorMessage.textContent = result.message;
-                }
-            } catch (error) {
-                console.error('Erro ao registrar:', error);
-                errorMessage.textContent = 'Erro ao conectar ao servidor.';
-            }
-        });
-    }
 // Login de usuário
 if (loginForm) {
     loginForm.addEventListener('submit', async function (event) {
@@ -63,6 +34,7 @@ if (loginForm) {
         }
     });
 }
+
 
     // Reset de senha
     if (resetPasswordForm) {

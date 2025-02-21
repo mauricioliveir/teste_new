@@ -1,4 +1,4 @@
-// Verifica se o usuário está logado usando sessionStorage
+// Verifica se o usuário está logado
 const isLoggedIn = sessionStorage.getItem('isLoggedIn');
 if (!isLoggedIn || isLoggedIn !== 'true') {
     // Redireciona para a página de login se não estiver logado
@@ -8,6 +8,7 @@ if (!isLoggedIn || isLoggedIn !== 'true') {
 // Recupera o nome do usuário do sessionStorage
 const username = sessionStorage.getItem('username');
 if (username) {
+    // Exibe o nome do usuário no elemento com ID 'username'
     document.getElementById('username').textContent = username;
 }
 
