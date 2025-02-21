@@ -122,7 +122,7 @@ header {
 
 /* Estilos para a imagem no header */
 header img {
-    height: 130px;
+    height: 100px;
     margin-right: 20px;
 }
 .password__reset{
@@ -173,7 +173,7 @@ nav ul li {
 nav ul li a {
     display: flex;
     text-decoration: none;
-    color: #333;
+    color: #033b77;
     font-family: 'Roboto', sans-serif;
     font-weight: 700;
     gap: 20px;
