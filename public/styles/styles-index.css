@@ -17,7 +17,7 @@ header {
     display: flex;
     align-items: center;
     background-color: #f8f9fa;
-    padding: 0px 20px;
+    padding: 0px 10px;
     border-bottom: 1px solid #ddd;
     font-family: 'Roboto', sans-serif;
 }
@@ -97,4 +97,9 @@ main {
 
 #logout-button:hover {
     background-color: #0056b3;
+}
+
+.disabled {
+    opacity: 0.5; /* Torna o texto semi-transparente */
+    cursor: not-allowed; /* Altera o cursor para "não permitido" */
 }
