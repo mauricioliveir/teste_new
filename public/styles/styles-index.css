@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Estilos gerais */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Estilos para o header */
+header {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 0px 20px;
+    border-bottom: 1px solid #ddd;
+    font-family: 'Roboto', sans-serif;
+}
+
+header img {
+    height: 100px;
+    margin-right: 20px;
+}
+
+/* Estilos para a barra lateral */
+.sidebar {
+    width: 250px;
+    background-color: #033b77;
+    padding: 20px;
+    height: calc(100vh - 140px); /* Ajuste conforme necessário */
+    position: fixed;
+    top: 100px; /* Ajuste conforme a altura do header */
+    left: 0;
+}
+
+.sidebar nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar nav ul li {
+    margin-bottom: 15px;
+}
+
+.sidebar nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    display: block;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar nav ul li a:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para o main */
+main {
+    margin-left: 290px; /* Ajuste conforme a largura da barra lateral */
+    padding: 20px;
+    flex: 1;
+}
+
+/* Estilos para o footer */
+.footer {
+    color: var(--cor-primaria);
+    background-color: #f8f9fa;
+    padding: 24px;
+    text-align: center;
+    font-family: "Roboto", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: auto;
+}
+
+/* Estilos para o botão de logout */
+#logout-button {
+    background-color: #033b77;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+#logout-button:hover {
+    background-color: #0056b3;
+}

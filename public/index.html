@@ -5,11 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENAC - Programa de Simulação</title>
-    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="./styles/styles-index.css">
 </head>
-<body>
+<body class="sidebar-page"> <!-- Adicione uma classe específica para essa página -->
     <header>
         <img src="./assets/senac-logo-0.png" alt="Logo">
+    </header>
+
+    <!-- Barra lateral -->
+    <aside class="sidebar">
         <nav>
             <ul>
                 <li><a href="#">Home</a></li>
@@ -19,15 +23,17 @@
                 <li><a href="#">Estoque</a></li>
             </ul>
         </nav>
-    </header>
+    </aside>
+
     <main>
         <section>
-            <h1>Bem-vindo ao Sistema SENAC do Mauricio</h1>
-            <p>Selecione uma das opções no menu acima para acessar as páginas.</p>
+            <h1>Bem-vindo ao Sistema SENAC</h1>
+            <p>Selecione uma das opções no menu ao lado para acessar as páginas.</p>
             <!-- Botão de Logout -->
             <button id="logout-button">Sair</button>
         </section>
     </main>
+
     <footer class="footer">
         <p>Desenvolvido por Mauricio</p>
     </footer>
