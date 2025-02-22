@@ -5,48 +5,39 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENAC - Programa de Simulação</title>
-    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="./styles/style-index.css">
+    <!-- Adicione o link para o ícone de logout (exemplo usando FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
         <img src="./assets/senac-logo-0.png" alt="Logo">
+        <div id="user-info">
+            <span id="username"></span>
+            <i class="fas fa-door-open logout-icon" id="logout-button-header"></i>
+        </div>
+    </header>
+
+    <aside class="sidebar">
         <nav>
             <ul>
-                <li><a href="#">Home</a></li>
                 <li><a href="#">Financeiro</a></li>
                 <li><a href="#">Departamento Pessoal</a></li>
                 <li><a href="#">Vendas</a></li>
                 <li><a href="#">Estoque</a></li>
             </ul>
         </nav>
-    </header>
+    </aside>
+
     <main>
-        <section>
-            <h1>Bem-vindo ao Sistema SENAC do Mauricio</h1>
-            <p>Selecione uma das opções no menu acima para acessar as páginas.</p>
-            <!-- Botão de Logout -->
-            <button id="logout-button">Sair</button>
+        <section>            
+            
         </section>
     </main>
     <footer class="footer">
         <p>Desenvolvido por Mauricio</p>
     </footer>
 
-    <script>
-        // Verifica se o usuário está logado usando sessionStorage
-        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-        if (!isLoggedIn || isLoggedIn !== 'true') {
-            // Redireciona para a página de login se não estiver logado
-            window.location.href = "login.html";
-        }
-
-        // Adiciona funcionalidade ao botão de logout
-        document.getElementById('logout-button').addEventListener('click', function() {
-            // Remove o estado de login
-            sessionStorage.removeItem('isLoggedIn');
-            // Redireciona para a página de login
-            window.location.href = "login.html";
-        });
-    </script>
+    <script src= "./scripts/script.js"></script>
 </body>
 </html>
