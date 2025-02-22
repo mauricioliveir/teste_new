@@ -35,7 +35,7 @@ const transporter = nodemailer.createTransport({
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/pages', express.static(path.join(__dirname, 'public', 'pages')));
+
 
 // Rota para registro de usuário
 app.post('/register', async (req, res) => {
