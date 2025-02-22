@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem('isLoggedIn', 'true'); // Mantém o usuário logado
+                    sessionStorage.setItem('isLoggedIn', 'true'); // Mantém o usuário logado
                     alert(result.message);
                     window.location.href = '/index.html';
                 } else {
