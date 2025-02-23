@@ -1,55 +1,53 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SENAC - Programa de Simulação</title>
-    <link rel="stylesheet" href="./styles/styles-index.css">
+    <title>Login</title>
+    <link rel="stylesheet" href="./styles/styles.css">
 </head>
-<body class="sidebar-page"> <!-- Adicione uma classe específica para essa página -->
-    <header>
-        <img src="./assets/senac-logo-0.png" alt="Logo">
-        <button id="logout-button">Sair</button>
-    </header>
+<body>
+    <div id="overlay">
+        <div class="login-container">
+            <div class="login-box">
+                <img src="./assets/senac-logo-0.png" alt="Logo SENAC" class="login-logo">
+                <h1>Login</h1>
+                <form id="login-form">
+                    <label for="email">E-mail:</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="seu_email@aqui.com"
+                        onfocus="this.placeholder=''"
+                        onblur="this.placeholder='seu_email@aqui.com'"
+                        required
+                    >
 
-    <!-- Barra lateral -->
-    <aside class="sidebar">
-        <nav>
-            <ul>
+                    <label for="password">Senha:</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="********"
+                        onfocus="this.placeholder=''"
+                        onblur="this.placeholder='********'"
+                        required
+                    >
 
-                <li><span class="disabled">HOME</span></li>               
-                <li><a href="./pages/dep-pessoal.html">Departamento Pessoal</a></li>
-                <li><a href="./pages/financeiro.html">Financeiro</a></li>
-                <li><a href="./pages/vendas.html">Vendas</a></li>
-                <li><a href="./pages/estoque.html">Estoque</a></li>
-            </ul>
-        </nav>
-    </aside>
+                    <button type="submit">Entrar</button>
+                </form>
+                <p>
+                    <a class="password__reset" href="./reset-password.html">Esqueceu a senha?</a>
+                </p>
+                <p>
+                    Não tem uma conta? <a class="not__account" href="./register.html">Registre-se</a>
+                </p>
+                <p id="error-message" class="error"></p>
+            </div>
+        </div>
+    </div>
 
-    <main>
-        <section>
-            <h1>Bem-vindo ao Sistema SENAC</h1>
-            <p>home</p>
-            
-        </section>
-    </main>
-
-    <script>
-        // Verifica se o usuário está logado usando sessionStorage
-        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-        if (!isLoggedIn || isLoggedIn !== 'true') {
-            // Redireciona para a página de login se não estiver logado
-            window.location.href = "login.html";
-        }
-
-        // Adiciona funcionalidade ao botão de logout
-        document.getElementById('logout-button').addEventListener('click', function() {
-            // Remove o estado de login
-            sessionStorage.removeItem('isLoggedIn');
-            // Redireciona para a página de login
-            window.location.href = "login.html";
-        });
-    </script>
+    <script src="./auth.js"></script>
 </body>
 </html>
