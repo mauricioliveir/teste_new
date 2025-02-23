@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (response.ok) {
                     sessionStorage.setItem('isLoggedIn', 'true'); // Mantém o usuário logado
                     alert(result.message);
-                    window.location.href = '/index.html';
+                    window.location.href = '/home.html';
                 } else {
                     errorMessage.textContent = result.message;
                 }
