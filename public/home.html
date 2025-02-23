@@ -40,7 +40,7 @@
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         if (!isLoggedIn || isLoggedIn !== 'true') {
             // Redireciona para a página de login se não estiver logado
-            window.location.href = "login.html";
+            window.location.href = "home.html";
         }
 
         // Adiciona funcionalidade ao botão de logout
@@ -48,7 +48,7 @@
             // Remove o estado de login
             sessionStorage.removeItem('isLoggedIn');
             // Redireciona para a página de login
-            window.location.href = "login.html";
+            window.location.href = "index.html";
         });
     </script>
 </body>
