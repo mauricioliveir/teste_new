@@ -76,24 +76,24 @@ app.post('/login', async (req, res) => {
 app.post('/reset-password', async (req, res) => {
     const { email } = req.body;
     try {
+        // Buscar o usuário no banco de dados
         const user = await pool.query('SELECT * FROM public.users WHERE email = $1', [email]);
+
         if (user.rows.length === 0) {
             return res.status(404).json({ success: false, message: 'E-mail não encontrado.' });
         }
-        
-        const resetToken = Math.random().toString(36).substr(2, 8); // Gerar um token simples (idealmente, use JWT ou UUID)
-        await pool.query('UPDATE public.users SET reset_token = $1 WHERE email = $2', [resetToken, email]);
 
-        const resetLink = `http://localhost:${port}/reset-password/${resetToken}`;
+        const userPassword = user.rows[0].password;
 
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Redefinição de Senha',
-            text: `Use este link para redefinir sua senha: ${resetLink}`,
+            subject: 'Recuperação de Senha',
+            text: `Sua senha cadastrada é: ${userPassword}. Recomendamos que altere sua senha assim que possível.`,
         });
 
-        res.json({ success: true, message: 'E-mail de redefinição enviado!' });
+        res.json({ success: true, message: 'Senha enviada para seu e-mail!' });
+
     } catch (err) {
         console.error('Erro ao solicitar redefinição de senha:', err);
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
