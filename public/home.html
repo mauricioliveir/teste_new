@@ -1,161 +1,124 @@
-/* Importação de fontes */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENAC - Programa de Simulação</title>
+    <link rel="stylesheet" href="./styles/styles-index.css">
+    <style>
+        /* Esconder todas as seções por padrão */
+        section {
+            display: none;
+        }
+        /* Exibir apenas a seção ativa */
+        section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="sidebar-page"> 
+    <header>
+        <img src="./assets/senac-logo-0.png" alt="Logo">
+        <button id="logout-button">Sair</button>
+    </header>
 
-/* Variáveis de cores */
-:root {
-    --cor-primaria: #033b77;
-    --cor-secundaria: #0056b3;
-    --cor-fundo: #f4f4f4;
-    --cor-texto: #333;
-    --cor-header: #f8f9fa;
-    --cor-borda: #ddd;
-    --cor-hover: #004494;
-    --cor-botao: #007bff;
-    --cor-botao-hover: #0056b3;
-}
+    <!-- Barra lateral -->
+    <aside class="sidebar">
+        <nav>
+            <ul>
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#dep-pessoal" class="nav-link">Departamento Pessoal</a></li>
+                <li><a href="#financeiro" class="nav-link">Financeiro</a></li>
+                <li><a href="#vendas" class="nav-link">Vendas</a></li>
+                <li><a href="#estoque" class="nav-link">Estoque</a></li>
+            </ul>
+        </nav>
+    </aside>
 
-/* Estilos gerais */
-body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--cor-fundo);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    color: var(--cor-texto);
-}
+    <main>
+        <section id="home" class="active">
+            <h1>Bem-vindo ao Sistema de Simulação de Rotinas Administrativas</h1>
+            <p>Escolha ao lado o departamento</p>
+        </section>
 
-/* Estilos para o header */
-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--cor-header);
-    padding: 10px 20px;
-    border-bottom: 1px solid var(--cor-borda);
-}
+        <section id="dep-pessoal">
+            <h1>Departamento Pessoal</h1>
+            <p>Gerencie admissões, folha de pagamento e benefícios dos funcionários.</p>
+            <button class="btn">Cadastrar Funcionário</button>
+            <button class="btn">Alterar Funcionário</button>
+            <button class="btn">Consultar Funcionário</button>
+            <button class="btn">Imprimir Relatório</button>
+        </section>
+    
+        <section id="financeiro">
+            <h1>Financeiro</h1>
+            <p>Controle receitas, despesas e relatórios financeiros da empresa.</p>
+            <button class="btn">Cadastrar NF</button>
+            <button class="btn">Consultar NF</button>
+            <button class="btn">Alterar NF</button>
+            <button class="btn">Contas a Pagar</button>
+            <button class="btn">Contas a Receber</button>
+            <button class="btn">Imprimir Relatório</button>
+        </section>
+    
+        <section id="vendas">
+            <h1>Vendas</h1>
+            <p>Acompanhe pedidos, faturamento e relacionamento com clientes.</p>
+            <button class="btn">Registrar Venda</button>
+            <button class="btn">Alterar Venda</button>
+            <button class="btn">Consultar Venda</button>
+            <button class="btn">Imprimir NF da Venda</button>
+        </section>
+    
+        <section id="estoque">
+            <h1>Estoque</h1>
+            <p>Gerencie o controle de produtos e insumos disponíveis no estoque.</p>
+            <button class="btn">Cadastrar Produto</button>
+            <button class="btn">Consultar Produto</button>
+            <button class="btn">Alterar Produto</button>
+            <button class="btn">Imprimir Estoque</button>
+        </section>
+    </main>
 
-header img {
-    height: 80px;
-}
+    <script>
+        // Verifica se o usuário está logado usando sessionStorage
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        if (!isLoggedIn || isLoggedIn !== 'true') {
+            window.location.href = "home.html";
+        }
 
-/* Estilos para a barra lateral */
-.sidebar {
-    width: 250px;
-    background-color: var(--cor-primaria);
-    padding: 20px;
-    height: calc(100vh - 100px);
-    position: fixed;
-    top: 100px;
-    left: 0;
-    overflow-y: auto;
-}
+        // Adiciona funcionalidade ao botão de logout
+        document.getElementById('logout-button').addEventListener('click', function() {
+            sessionStorage.removeItem('isLoggedIn');
+            window.location.href = "index.html";
+        });
 
-.sidebar nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
+        document.addEventListener("DOMContentLoaded", function () {
+            const navLinks = document.querySelectorAll(".nav-link");
+            const sections = document.querySelectorAll("main section");
 
-.sidebar nav ul li {
-    margin-bottom: 15px;
-}
+            function showSection(id) {
+                sections.forEach(section => {
+                    section.classList.remove("active");
+                    if (section.id === id) {
+                        section.classList.add("active");
+                    }
+                });
+            }
 
-.sidebar nav ul li a {
-    text-decoration: none;
-    color: #fff;
-    font-weight: 700;
-    display: block;
-    padding: 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
+            navLinks.forEach(link => {
+                link.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    navLinks.forEach(item => item.classList.remove("active"));
+                    this.classList.add("active");
+                    const sectionId = this.getAttribute("href").substring(1);
+                    showSection(sectionId);
+                });
+            });
 
-.sidebar nav ul li a:hover {
-    background-color: var(--cor-hover);
-}
-
-/* Estilização do link ativo */
-.sidebar .nav-link.active {
-    font-weight: bold;
-    background-color: var(--cor-secundaria);
-}
-
-/* Estilos para o conteúdo principal */
-main {
-    margin-left: 270px;
-    padding: 20px;
-    flex: 1;
-}
-
-/* Estilos para as seções */
-section {
-    display: none;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-section.active {
-    display: block;
-}
-
-/* Estilos para os botões de funcionalidades */
-.funcionalidades {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.funcionalidades button {
-    background-color: var(--cor-botao);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-.funcionalidades button:hover {
-    background-color: var(--cor-botao-hover);
-}
-
-/* Estilos para o footer */
-.footer {
-    background-color: var(--cor-header);
-    padding: 24px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 500;
-    margin-top: auto;
-    border-top: 1px solid var(--cor-borda);
-}
-
-/* Estilos para o botão de logout */
-#logout-button {
-    background-color: var(--cor-primaria);
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-}
-
-#logout-button:hover {
-    background-color: var(--cor-hover);
-}
-
-#logout-button.disabled {
-    background-color: var(--cor-secundaria);
-    cursor: not-allowed;
-}
+            showSection("home");
+        });
+    </script>
+</body>
+</html>
