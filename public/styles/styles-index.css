@@ -11,6 +11,8 @@
     --cor-header: #f8f9fa;
     --cor-borda: #ddd;
     --cor-hover: #004494;
+    --cor-botao: #007bff;
+    --cor-botao-hover: #0056b3;
 }
 
 /* Estilos gerais */
@@ -44,9 +46,9 @@ header img {
     width: 250px;
     background-color: var(--cor-primaria);
     padding: 20px;
-    height: calc(100vh - 100px); /* Ajuste conforme necessário */
+    height: calc(100vh - 100px);
     position: fixed;
-    top: 100px; /* Ajuste conforme a altura do header */
+    top: 100px;
     left: 0;
     overflow-y: auto;
 }
@@ -64,7 +66,6 @@ header img {
 .sidebar nav ul li a {
     text-decoration: none;
     color: #fff;
-    font-family: 'Roboto', sans-serif;
     font-weight: 700;
     display: block;
     padding: 10px;
@@ -84,14 +85,14 @@ header img {
 
 /* Estilos para o conteúdo principal */
 main {
-    margin-left: 270px; /* Ajuste conforme a largura da barra lateral */
+    margin-left: 270px;
     padding: 20px;
     flex: 1;
 }
 
 /* Estilos para as seções */
 section {
-    display: none; /* Esconde todas as seções por padrão */
+    display: none;
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -100,7 +101,30 @@ section {
 }
 
 section.active {
-    display: block; /* Exibe apenas a seção ativa */
+    display: block;
+}
+
+/* Estilos para os botões de funcionalidades */
+.funcionalidades {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.funcionalidades button {
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.funcionalidades button:hover {
+    background-color: var(--cor-botao-hover);
 }
 
 /* Estilos para o footer */
@@ -108,7 +132,6 @@ section.active {
     background-color: var(--cor-header);
     padding: 24px;
     text-align: center;
-    font-family: 'Roboto', sans-serif;
     font-size: 12px;
     font-weight: 500;
     margin-top: auto;
@@ -120,10 +143,10 @@ section.active {
     background-color: var(--cor-primaria);
     color: #fff;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 15px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
     transition: background-color 0.3s ease;
 }
