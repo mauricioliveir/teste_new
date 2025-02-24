@@ -104,7 +104,7 @@ main {
     cursor: not-allowed; /* Altera o cursor para "não permitido" */
 }
 
-ection {
+section {
     display: none; /* Esconde todas as seções por padrão */
 }
 
