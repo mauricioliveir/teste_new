@@ -100,6 +100,7 @@ main {
 }
 
 .disabled {
-    opacity: 0.5; /* Torna o texto semi-transparente */
+    color: orange;
+    opacity: 0.3; /* Torna o texto semi-transparente */
     cursor: not-allowed; /* Altera o cursor para "não permitido" */
 }
