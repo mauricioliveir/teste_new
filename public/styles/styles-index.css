@@ -1,41 +1,54 @@
+/* Importação de fontes */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Variáveis de cores */
+:root {
+    --cor-primaria: #033b77;
+    --cor-secundaria: #0056b3;
+    --cor-fundo: #f4f4f4;
+    --cor-texto: #333;
+    --cor-header: #f8f9fa;
+    --cor-borda: #ddd;
+    --cor-hover: #004494;
+}
 
 /* Estilos gerais */
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background-color: var(--cor-fundo);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    color: var(--cor-texto);
 }
 
 /* Estilos para o header */
 header {
     display: flex;
     align-items: center;
-    background-color: #f8f9fa;
-    padding: 0px 10px;
-    border-bottom: 1px solid #ddd;
-    font-family: 'Roboto', sans-serif;
+    justify-content: space-between;
+    background-color: var(--cor-header);
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--cor-borda);
 }
 
 header img {
-    height: 100px;
-    margin-right: 20px;
+    height: 80px;
 }
 
 /* Estilos para a barra lateral */
 .sidebar {
     width: 250px;
-    background-color: #033b77;
+    background-color: var(--cor-primaria);
     padding: 20px;
-    height: calc(100vh - 140px); /* Ajuste conforme necessário */
+    height: calc(100vh - 100px); /* Ajuste conforme necessário */
     position: fixed;
     top: 100px; /* Ajuste conforme a altura do header */
     left: 0;
+    overflow-y: auto;
 }
 
 .sidebar nav ul {
@@ -60,31 +73,51 @@ header img {
 }
 
 .sidebar nav ul li a:hover {
-    background-color: #0056b3;
+    background-color: var(--cor-hover);
 }
 
-/* Estilos para o main */
+/* Estilização do link ativo */
+.sidebar .nav-link.active {
+    font-weight: bold;
+    background-color: var(--cor-secundaria);
+}
+
+/* Estilos para o conteúdo principal */
 main {
-    margin-left: 290px; /* Ajuste conforme a largura da barra lateral */
+    margin-left: 270px; /* Ajuste conforme a largura da barra lateral */
     padding: 20px;
     flex: 1;
 }
 
+/* Estilos para as seções */
+section {
+    display: none; /* Esconde todas as seções por padrão */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+section.active {
+    display: block; /* Exibe apenas a seção ativa */
+}
+
 /* Estilos para o footer */
 .footer {
-    color: var(--cor-primaria);
-    background-color: #f8f9fa;
+    background-color: var(--cor-header);
     padding: 24px;
     text-align: center;
-    font-family: "Roboto", sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 12px;
     font-weight: 500;
     margin-top: auto;
+    border-top: 1px solid var(--cor-borda);
 }
 
 /* Estilos para o botão de logout */
 #logout-button {
-    background-color: #033b77;
+    background-color: var(--cor-primaria);
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -96,11 +129,10 @@ main {
 }
 
 #logout-button:hover {
-    background-color: #0056b3;
+    background-color: var(--cor-hover);
 }
 
-.disabled {
-    background-color: #0056b3;
-    cursor: not-allowed; /* Altera o cursor para "não permitido" */
+#logout-button.disabled {
+    background-color: var(--cor-secundaria);
+    cursor: not-allowed;
 }
-
