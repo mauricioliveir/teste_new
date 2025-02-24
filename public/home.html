@@ -17,21 +17,39 @@
     <aside class="sidebar">
         <nav>
             <ul>
-
-                <li><span class="disabled">Home</span></li>               
-                <li><a href="./pages/dep-pessoal.html">Departamento Pessoal</a></li>
-                <li><a href="./pages/financeiro.html">Financeiro</a></li>
-                <li><a href="./pages/vendas.html">Vendas</a></li>
-                <li><a href="./pages/estoque.html">Estoque</a></li>
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#dep-pessoal" class="nav-link">Departamento Pessoal</a></li>
+                <li><a href="#financeiro" class="nav-link">Financeiro</a></li>
+                <li><a href="#vendas" class="nav-link">Vendas</a></li>
+                <li><a href="#estoque" class="nav-link">Estoque</a></li>
             </ul>
         </nav>
     </aside>
 
     <main>
         <section>
-            <h1>Bem-vindo ao Sistema SENAC</h1>
-            <p>Home</p>
+            <h1>Bem-vindo ao Sistema de simulação de rotinas Administrativas</h1>
+            <p>Escolha ao lado o departamento</p>
             
+        </section>
+        <section id="dep-pessoal">
+            <h1>Departamento Pessoal</h1>
+            <p>Gerencie admissões, folha de pagamento e benefícios dos funcionários.</p>
+        </section>
+    
+        <section id="financeiro">
+            <h1>Financeiro</h1>
+            <p>Controle receitas, despesas e relatórios financeiros da empresa.</p>
+        </section>
+    
+        <section id="estoque">
+            <h1>Estoque</h1>
+            <p>Gerencie o controle de produtos e insumos disponíveis no estoque.</p>
+        </section>
+    
+        <section id="vendas">
+            <h1>Vendas</h1>
+            <p>Acompanhe pedidos, faturamento e relacionamento com clientes.</p>
         </section>
     </main>
 
@@ -49,6 +67,34 @@
             sessionStorage.removeItem('isLoggedIn');
             // Redireciona para a página de login
             window.location.href = "index.html";
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const navLinks = document.querySelectorAll(".nav-link");
+    
+            navLinks.forEach(link => {
+                link.addEventListener("click", function (event) {
+                    event.preventDefault(); // Evita que o link execute o comportamento padrão
+    
+                    // Remove todos os spans anteriores e transforma todos os itens novamente em <a>
+                    navLinks.forEach(item => {
+                        if (item.parentElement.querySelector("span")) {
+                            const newLink = document.createElement("a");
+                            newLink.href = item.href;
+                            newLink.className = "nav-link";
+                            newLink.innerText = item.innerText;
+                            newLink.addEventListener("click", handleNavLinkClick.bind(null, item));
+                            item.parentElement.replaceChild(newLink, item.parentElement.querySelector("span"));
+                        }
+                    });
+    
+                    // Transforma o item clicado em <span> e remove o <a>
+                    const span = document.createElement("span");
+                    span.className = "disabled";
+                    span.innerText = this.innerText;
+                    this.parentElement.replaceChild(span, this);
+                });
+            });
         });
     </script>
 </body>
