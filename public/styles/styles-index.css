@@ -104,15 +104,3 @@ main {
     cursor: not-allowed; /* Altera o cursor para "não permitido" */
 }
 
-section {
-    display: none; /* Esconde todas as seções por padrão */
-}
-
-section.active {
-    display: block; /* Exibe apenas a seção ativa */
-}
-
-.sidebar .nav-link.active {
-    font-weight: bold;
-    color: #0056b3; /* Cor do link ativo */
-}
