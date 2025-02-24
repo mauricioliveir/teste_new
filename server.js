@@ -24,10 +24,10 @@ const pool = new Pool({
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
-    secure: false, 
+    secure: process.env.EMAIL_PORT == 465, // Para SSL/TLS, usar a porta 465
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        pass: process.env.EMAIL_PASS, // Usando a variável correta para a senha de app
     },
 });
 
@@ -35,7 +35,6 @@ const transporter = nodemailer.createTransport({
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 // Rota para registro de usuário
 app.post('/register', async (req, res) => {
