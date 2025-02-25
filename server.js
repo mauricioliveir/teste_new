@@ -99,6 +99,37 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
+// Rota para cadastro de funcionário
+app.post('/funcionarios', async (req, res) => {
+    const { nome, cpf, rg, filiacao, endereco, telefone, email, cargo_admitido, salario } = req.body;
+
+    try {
+        // Verificar se o CPF ou email já existe
+        const funcionarioExiste = await pool.query(
+            'SELECT * FROM public.funcionarios WHERE cpf = $1 OR email = $2', 
+            [cpf, email]
+        );
+
+        if (funcionarioExiste.rows.length > 0) {
+            return res.status(400).json({ success: false, message: 'Funcionário já cadastrado.' });
+        }
+
+        // Inserir novo funcionário
+        const result = await pool.query(
+            `INSERT INTO public.funcionarios 
+            (nome, cpf, rg, filiacao, endereco, telefone, email, cargo_admitido, salario) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+            [nome, cpf, rg, filiacao, endereco, telefone, email, cargo_admitido, salario]
+        );
+
+        res.json({ success: true, message: 'Funcionário cadastrado com sucesso!', funcionario: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao cadastrar funcionário:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+
 // Rota para listar usuários
 app.get('/users', async (req, res) => {
     try {

@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login-form');
     const resetPasswordForm = document.getElementById('reset-password-form');
+    const cadastroFuncionarioForm = document.getElementById('cadastro-funcionario-form');
     const errorMessage = document.getElementById('error-message');
 
     // Registro de usuário
@@ -87,6 +88,42 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } catch (error) {
                 console.error('Erro ao solicitar redefinição de senha:', error);
+                errorMessage.textContent = 'Erro ao conectar ao servidor.';
+            }
+        });
+    }
+
+    if (cadastroFuncionarioForm) {
+        cadastroFuncionarioForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const nome = document.getElementById('nome').value;
+            const cpf = document.getElementById('cpf').value;
+            const rg = document.getElementById('rg').value;
+            const filiacao = document.getElementById('filiacao').value;
+            const endereco = document.getElementById('endereco').value;
+            const telefone = document.getElementById('telefone').value;
+            const email = document.getElementById('email').value;
+            const cargo_admitido = document.getElementById('cargo_admitido').value;
+            const salario = document.getElementById('salario').value;
+
+            try {
+                const response = await fetch('/funcionarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, cpf, rg, filiacao, endereco, telefone, email, cargo_admitido, salario }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    cadastroFuncionarioForm.reset();
+                } else {
+                    errorMessage.textContent = result.message;
+                }
+            } catch (error) {
+                console.error('Erro ao cadastrar funcionário:', error);
                 errorMessage.textContent = 'Erro ao conectar ao servidor.';
             }
         });
