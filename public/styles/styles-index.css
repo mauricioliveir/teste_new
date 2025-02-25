@@ -127,6 +127,26 @@ section.active {
     background-color: var(--cor-botao-hover);
 }
 
+.btn{
+    display: inline-block;
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: var(--cor-botao-hover);
+}
+.btn:active {
+    background-color: #004494; /* Azul ainda mais escuro */
+    transform: scale(0.95);
+}
+
 /* Estilos para o footer */
 .footer {
     background-color: var(--cor-header);
