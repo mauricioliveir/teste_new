@@ -7,11 +7,9 @@
     <title>SENAC - Programa de Simulação</title>
     <link rel="stylesheet" href="./styles/styles-index.css">
     <style>
-        /* Esconder todas as seções por padrão */
         section {
             display: none;
         }
-        /* Exibir apenas a seção ativa */
         section.active {
             display: block;
         }
@@ -23,7 +21,6 @@
         <button id="logout-button">Sair</button>
     </header>
 
-    <!-- Barra lateral -->
     <aside class="sidebar">
         <nav>
             <ul>
@@ -39,56 +36,43 @@
     <main>
         <section id="home" class="active">
             <h1>Bem-vindo ao Sistema de Simulação de Rotinas Administrativas</h1>
-            <p>Escolha ao lado o departamentos por que quebra a produção?</p>
+            <p>Escolha ao lado o departamento desejado.</p>
         </section>
 
         <section id="dep-pessoal">
             <h1>Departamento Pessoal</h1>
-            <p>Gerencie admissões, folha de pagamento e benefícios dos funcionários.</p>
-            <button class="btn">Cadastrar Funcionário</button>
-            <button class="btn">Alterar Funcionário</button>
-            <button class="btn">Consultar Funcionário</button>
-            <button class="btn">Imprimir Relatório</button>
+            <p>Cadastro de colaborador com lançamento de dados pessoais e do cargo admitido.</p>
+            <button class="btn" onclick="alert('Cadastro de colaborador em desenvolvimento')">Cadastrar Colaborador</button>
         </section>
     
         <section id="financeiro">
             <h1>Financeiro</h1>
-            <p>Controle receitas, despesas e relatórios financeiros da empresa.</p>
-            <button class="btn">Cadastrar NF</button>
-            <button class="btn">Consultar NF</button>
-            <button class="btn">Alterar NF</button>
-            <button class="btn">Contas a Pagar</button>
-            <button class="btn">Contas a Receber</button>
-            <button class="btn">Imprimir Relatório</button>
+            <p>Gerencie tesouraria, fluxo de caixa e contas a pagar/receber.</p>
+            <button class="btn" onclick="alert('Tesouraria em desenvolvimento')">Tesouraria</button>
+            <button class="btn" onclick="alert('Fluxo de Caixa em desenvolvimento')">Fluxo de Caixa</button>
+            <button class="btn" onclick="alert('Contas a Pagar em desenvolvimento')">Contas a Pagar</button>
+            <button class="btn" onclick="alert('Contas a Receber em desenvolvimento')">Contas a Receber</button>
         </section>
     
         <section id="vendas">
             <h1>Vendas</h1>
-            <p>Acompanhe pedidos, faturamento e relacionamento com clientes.</p>
-            <button class="btn">Registrar Venda</button>
-            <button class="btn">Alterar Venda</button>
-            <button class="btn">Consultar Venda</button>
-            <button class="btn">Imprimir NF da Venda</button>
+            <p>Registro de vendas e simulação de emissão de nota fiscal fictícia.</p>
+            <button class="btn" onclick="alert('Registro de venda em desenvolvimento')">Registrar Venda</button>
         </section>
     
         <section id="estoque">
             <h1>Estoque</h1>
-            <p>Gerencie o controle de produtos e insumos disponíveis no estoque.</p>
-            <button class="btn">Cadastrar Produto</button>
-            <button class="btn">Consultar Produto</button>
-            <button class="btn">Alterar Produto</button>
-            <button class="btn">Imprimir Estoque</button>
+            <p>Lançamentos de entrada de produtos no estoque via NF fictícia.</p>
+            <button class="btn" onclick="alert('Cadastro de entrada de produto em desenvolvimento')">Cadastrar Entrada de Produto</button>
         </section>
     </main>
 
     <script>
-        // Verifica se o usuário está logado usando sessionStorage
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         if (!isLoggedIn || isLoggedIn !== 'true') {
             window.location.href = "home.html";
         }
 
-        // Adiciona funcionalidade ao botão de logout
         document.getElementById('logout-button').addEventListener('click', function() {
             sessionStorage.removeItem('isLoggedIn');
             window.location.href = "index.html";
