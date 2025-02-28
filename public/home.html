@@ -6,32 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENAC - Programa de Simulação</title>
     <link rel="stylesheet" href="./styles/styles-index.css">
-    <style>
-        section {
-            display: none;
-        }
-        section.active {
-            display: block;
-        }
-    </style>
+
 </head>
 <body class="sidebar-page"> 
     <header>
         <img src="./assets/senac-logo-0.png" alt="Logo">
+        <h1 class="titulo__pagina">Sistema de Simulação de Rotinas Administrativas</h1>
         <button id="logout-button">Sair</button>
     </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#home" class="nav-link active">Home</a></li>
+            <li><a href="#dep-pessoal" class="nav-link">Departamento Pessoal</a></li>
+            <li><a href="#financeiro" class="nav-link">Financeiro</a></li>
+            <li><a href="#vendas" class="nav-link">Vendas</a></li>
+            <li><a href="#estoque" class="nav-link">Estoque</a></li>
+        </ul>
+    </nav>
+            
 
-    <aside class="sidebar">
-        <nav>
-            <ul>
-                <li><a href="#home" class="nav-link active">Home</a></li>
-                <li><a href="#dep-pessoal" class="nav-link">Departamento Pessoal</a></li>
-                <li><a href="#financeiro" class="nav-link">Financeiro</a></li>
-                <li><a href="#vendas" class="nav-link">Vendas</a></li>
-                <li><a href="#estoque" class="nav-link">Estoque</a></li>
-            </ul>
-        </nav>
-    </aside>
+
 
     <main>
         <section id="home" class="active">
@@ -42,7 +37,7 @@
         <section id="dep-pessoal">
             <h1>Departamento Pessoal</h1>
             <p>Cadastro de colaborador com lançamento de dados pessoais e do cargo admitido.</p>
-            <button class="btn" onclick="alert('Cadastro de colaborador em desenvolvimento')">Cadastrar Colaborador</button>
+            
             <form id="cadastro-funcionario-form">
                 <label for="nome">Nome:</label>
                 <input type="text" id="nome" required>
@@ -71,7 +66,7 @@
                 <label for="salario">Salário:</label>
                 <input type="number" step="0.01" id="salario" required>
             
-                <button type="submit">Cadastrar Funcionário</button>
+                <button class="btn" type="submit">Cadastrar Funcionário</button>
             </form>
             
             <p id="error-message" ></p>
@@ -101,5 +96,6 @@
     </main>
 
     <script src="./scripts/script.js"></script>
+    <script src="./auth.js"></script>
 </body>
 </html>
