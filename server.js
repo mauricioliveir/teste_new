@@ -101,7 +101,8 @@ app.post('/reset-password', async (req, res) => {
 
 // Rota para cadastro de funcionário
 app.post('/funcionarios', async (req, res) => {
-    const { nome, cpf, rg, filiacao, cep, logradouro, numero, bairro, cidade, estado, telefone, email, cargo_admitido, salario } = req.body;
+    const { nome, cpf, rg, filiacao, cep, logradouro, numero, bairro, 
+        cidade, estado, telefone, email, cargo_admitido, salario } = req.body;
 
     try {
         // Verificar se o CPF ou email já existe
@@ -118,10 +119,10 @@ app.post('/funcionarios', async (req, res) => {
         const result = await pool.query(
             `INSERT INTO public.funcionarios 
             (nome, cpf, rg, filiacao, cep, logradouro, numero, bairro,
-            cidade, estado,  telefone, email, cargo_admitido, salario) 
+            cidade, estado, telefone, email, cargo_admitido, salario) 
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
             [nome, cpf, rg, filiacao, cep, logradouro, numero, bairro,
-                cidade, estado,  telefone, email, cargo_admitido, salario]
+                cidade, estado, telefone, email, cargo_admitido, salario]
         );
 
         res.json({ success: true, message: 'Funcionário cadastrado com sucesso!', funcionario: result.rows[0] });

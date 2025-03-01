@@ -96,31 +96,46 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cadastroFuncionarioForm) {
         cadastroFuncionarioForm.addEventListener('submit', async function (event) {
             event.preventDefault();
-
+    
             const nome = document.getElementById('nome').value;
             const cpf = document.getElementById('cpf').value;
             const rg = document.getElementById('rg').value;
             const filiacao = document.getElementById('filiacao').value;
-            const cepInput = document.getElementById("cep");
-            const logradouroInput = document.getElementById("logradouro");
-            const numeroInput = document.getElementById("numero");
-            const cidadeInput = document.getElementById("cidade");
-            const estadoInput = document.getElementById("estado");
+            const cep = document.getElementById('cep').value;
+            const logradouro = document.getElementById('logradouro').value;
+            const numero = document.getElementById('numero').value;
+            const bairro = document.getElementById('bairro').value;
+            const cidade = document.getElementById('cidade').value;
+            const estado = document.getElementById('estado').value;
             const telefone = document.getElementById('telefone').value;
             const email = document.getElementById('email').value;
             const cargo_admitido = document.getElementById('cargo_admitido').value;
             const salario = document.getElementById('salario').value;
-
+    
             try {
                 const response = await fetch('/funcionarios', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, cpf, rg, filiacao, cep, logradouro, numero, 
-                        bairro, cidade, estado, telefone, email, cargo_admitido, salario }),
+                    body: JSON.stringify({ 
+                        nome, 
+                        cpf, 
+                        rg, 
+                        filiacao, 
+                        cep, 
+                        logradouro, 
+                        numero, 
+                        bairro, 
+                        cidade, 
+                        estado, 
+                        telefone, 
+                        email, 
+                        cargo_admitido, 
+                        salario 
+                    }),
                 });
-
+    
                 const result = await response.json();
-
+    
                 if (response.ok) {
                     alert(result.message);
                     cadastroFuncionarioForm.reset();
