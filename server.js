@@ -101,7 +101,7 @@ app.post('/reset-password', async (req, res) => {
 
 // Rota para cadastro de funcionário
 app.post('/funcionarios', async (req, res) => {
-    const { nome, cpf, rg, filiacao, endereco, telefone, email, cargo_admitido, salario } = req.body;
+    const { nome, cpf, rg, filiacao, cep, logradouro, numero, bairro, cidade, estado, telefone, email, cargo_admitido, salario } = req.body;
 
     try {
         // Verificar se o CPF ou email já existe
@@ -117,9 +117,11 @@ app.post('/funcionarios', async (req, res) => {
         // Inserir novo funcionário
         const result = await pool.query(
             `INSERT INTO public.funcionarios 
-            (nome, cpf, rg, filiacao, endereco, telefone, email, cargo_admitido, salario) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-            [nome, cpf, rg, filiacao, endereco, telefone, email, cargo_admitido, salario]
+            (nome, cpf, rg, filiacao, cep, logradouro, numero, bairro,
+            cidade, estado,  telefone, email, cargo_admitido, salario) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+            [nome, cpf, rg, filiacao, cep, logradouro, numero, bairro,
+                cidade, estado,  telefone, email, cargo_admitido, salario]
         );
 
         res.json({ success: true, message: 'Funcionário cadastrado com sucesso!', funcionario: result.rows[0] });
@@ -130,17 +132,16 @@ app.post('/funcionarios', async (req, res) => {
 });
 
 
-// Rota para listar usuários
-app.get('/users', async (req, res) => {
+// Rota para listar funcionários
+app.get('/funcionarios', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM public.users');
-        res.json({ success: true, users: result.rows });
+        const result = await pool.query('SELECT * FROM public.funcionarios');
+        res.json({ success: true, funcionarios: result.rows });
     } catch (err) {
-        console.error('Erro ao buscar usuários:', err);
+        console.error('Erro ao buscar funcionários:', err);
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
     }
 });
-
 // Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

@@ -101,7 +101,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const cpf = document.getElementById('cpf').value;
             const rg = document.getElementById('rg').value;
             const filiacao = document.getElementById('filiacao').value;
-            const endereco = document.getElementById('endereco').value;
+            const cepInput = document.getElementById("cep");
+            const logradouroInput = document.getElementById("logradouro");
+            const numeroInput = document.getElementById("numero");
+            const cidadeInput = document.getElementById("cidade");
+            const estadoInput = document.getElementById("estado");
             const telefone = document.getElementById('telefone').value;
             const email = document.getElementById('email').value;
             const cargo_admitido = document.getElementById('cargo_admitido').value;
@@ -111,7 +115,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const response = await fetch('/funcionarios', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, cpf, rg, filiacao, endereco, telefone, email, cargo_admitido, salario }),
+                    body: JSON.stringify({ nome, cpf, rg, filiacao, cep, logradouro, numero, 
+                        bairro, cidade, estado, telefone, email, cargo_admitido, salario }),
                 });
 
                 const result = await response.json();

@@ -134,24 +134,57 @@ section.active {
     background-color: var(--cor-botao-hover);
 }
 
-.btn{
-    display: inline-block;
+#cadastro-funcionario-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: auto;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Estilos para o botão principal */
+.btn {
+    width: 100%;
     background-color: var(--cor-botao);
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 10px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     transition: background-color 0.3s ease;
 }
 
-.btn:hover {
-    background-color: var(--cor-botao-hover);
+/* Estilos para o botão desabilitado */
+.btn:disabled {
+    background-color: var(--cor-botao-desabilitado);
+    color: var(--cor-botao-texto-desabilitado);
+    cursor: not-allowed;
+    pointer-events: none; /* Desativa interações com o botão */
 }
-.btn:active {
-    background-color: #004494; /* Azul ainda mais escuro */
-    transform: scale(0.95);
+
+/* Estilos para o hover no botão */
+.btn:hover:not(:disabled) {
+    background-color: var(--cor-botao-hover);
 }
 
 /* Estilos para o footer */
