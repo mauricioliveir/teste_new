@@ -104,6 +104,24 @@ app.post('/funcionarios', async (req, res) => {
     const { nome, cpf, rg, filiacao, cep, logradouro, numero, bairro, 
         cidade, estado, telefone, email, cargo_admitido, salario } = req.body;
 
+    // Depuração: Verifique os dados recebidos
+    console.log('Dados recebidos:', {
+        nome,
+        cpf,
+        rg,
+        filiacao,
+        cep,
+        logradouro,
+        numero,
+        bairro,
+        cidade,
+        estado,
+        telefone,
+        email,
+        cargo_admitido,
+        salario
+    });
+
     try {
         // Verificar se o CPF ou email já existe
         const funcionarioExiste = await pool.query(
@@ -128,7 +146,11 @@ app.post('/funcionarios', async (req, res) => {
         res.json({ success: true, message: 'Funcionário cadastrado com sucesso!', funcionario: result.rows[0] });
     } catch (err) {
         console.error('Erro ao cadastrar funcionário:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro no servidor.', 
+            error: err.message // Envia detalhes do erro para o frontend
+        });
     }
 });
 

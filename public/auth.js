@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    //Cadastro de funcionário
     if (cadastroFuncionarioForm) {
         cadastroFuncionarioForm.addEventListener('submit', async function (event) {
             event.preventDefault();
@@ -111,6 +112,24 @@ document.addEventListener('DOMContentLoaded', function () {
             const email = document.getElementById('email').value;
             const cargo_admitido = document.getElementById('cargo_admitido').value;
             const salario = document.getElementById('salario').value;
+    
+            // Depuração: Verifique os valores no console
+            console.log({
+                nome,
+                cpf,
+                rg,
+                filiacao,
+                cep,
+                logradouro,
+                numero,
+                bairro,
+                cidade,
+                estado,
+                telefone,
+                email,
+                cargo_admitido,
+                salario
+            });
     
             try {
                 const response = await fetch('/funcionarios', {
