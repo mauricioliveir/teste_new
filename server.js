@@ -296,6 +296,36 @@ app.get('/estoque', async (req, res) => {
     }
 });
 
+// Rota para gerar PDF com vendas
+app.get('/gerar-pdf-vendas', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.vendas');
+
+        const doc = new PDFDocument();
+        let filename = 'vendas.pdf';
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
+        doc.pipe(res);
+
+        doc.fontSize(20).text('Relatório de Vendas', { align: 'center' });
+        doc.moveDown();
+
+        result.rows.forEach(venda => {
+            doc.fontSize(12).text(`Cliente: ${venda.cliente}`);
+            doc.text(`Produto: ${venda.produto}`);
+            doc.text(`Valor: R$ ${venda.valor.toFixed(2)}`);
+            doc.text(`Data: ${venda.data}`);
+            doc.moveDown();
+        });
+
+        doc.end();
+    } catch (err) {
+        console.error('Erro ao gerar PDF de vendas:', err);
+        res.status(500).json({ success: false, message: 'Erro ao gerar PDF.' });
+    }
+});
+
 // Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

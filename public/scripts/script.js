@@ -47,6 +47,15 @@ function initNavigation() {
     }
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    fetch("cadastro-funcionario.html")
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("conteudo-dep-pessoal").innerHTML = html;
+        })
+        .catch(error => console.error("Erro ao carregar a página:", error));
+});
+
 // 2. Validação e preenchimento automático de CEP
 function initCEPValidation() {
     const cepInput = document.getElementById("cep");
