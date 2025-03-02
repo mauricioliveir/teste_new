@@ -137,6 +137,17 @@ app.get('/funcionarios', async (req, res) => {
     }
 });
 
+// Rota para listar entradas financeiras
+app.get('/financeiro', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.financeiro');
+        res.json({ success: true, financeiro: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar entradas financeiras:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
 // Rota para cadastro de entrada financeira
 app.post('/financeiro', async (req, res) => {
     const { tipo, valor, descricao } = req.body;
@@ -150,17 +161,6 @@ app.post('/financeiro', async (req, res) => {
         res.json({ success: true, message: 'Entrada financeira cadastrada com sucesso!', data: result.rows[0] });
     } catch (err) {
         console.error('Erro ao cadastrar entrada financeira:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para listar entradas financeiras
-app.get('/financeiro', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM public.financeiro');
-        res.json({ success: true, financeiro: result.rows });
-    } catch (err) {
-        console.error('Erro ao buscar entradas financeiras:', err);
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
     }
 });

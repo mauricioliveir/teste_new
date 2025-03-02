@@ -314,5 +314,79 @@ function marcarComoRecebida(index) {
 // Logout
 document.getElementById('logout-button').addEventListener('click', function () {
     sessionStorage.removeItem('isLoggedIn'); // Remove o status de logado
-    window.location.href = '/login.html'; // Redireciona para a página de login
+    window.location.href = '/index.html'; // Redireciona para a página de login
+});
+
+// Função para atualizar o fluxo de caixa
+function atualizarFluxoCaixa() {
+    fetch('/financeiro')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const entradas = data.financeiro
+                    .filter(item => item.tipo === 'entrada')
+                    .reduce((total, item) => total + parseFloat(item.valor), 0);
+
+                const saidas = data.financeiro
+                    .filter(item => item.tipo === 'saida')
+                    .reduce((total, item) => total + parseFloat(item.valor), 0);
+
+                const saldoAnterior = 0; // Pode ser ajustado conforme necessário
+                const saldoFinal = saldoAnterior + entradas - saidas;
+
+                // Atualiza os valores na tela
+                document.getElementById('saldo-anterior').textContent = saldoAnterior.toFixed(2);
+                document.getElementById('entradas').textContent = entradas.toFixed(2);
+                document.getElementById('saidas').textContent = saidas.toFixed(2);
+                document.getElementById('saldo-final').textContent = saldoFinal.toFixed(2);
+            } else {
+                console.error('Erro ao buscar dados do financeiro:', data.message);
+            }
+        })
+        .catch(error => console.error('Erro ao atualizar fluxo de caixa:', error));
+}
+
+// Inicializa o fluxo de caixa ao carregar a página
+document.addEventListener("DOMContentLoaded", function () {
+    // Verifica se o usuário está logado
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+
+    if (isLoggedIn !== 'true') {
+        window.location.href = '/login.html';
+    } else {
+        initNavigation();
+        initCEPValidation();
+        initCPFValidation();
+        initFormCompletionCheck();
+        initEstoque();
+        initContasReceber();
+        initRelatorios();
+        atualizarFluxoCaixa(); // Atualiza o fluxo de caixa ao carregar a página
+    }
+});
+
+// Atualiza o fluxo de caixa após cadastrar uma entrada/saída
+document.getElementById('tesouraria-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const tipo = document.getElementById('tipo').value;
+    const valor = parseFloat(document.getElementById('valor').value);
+    const descricao = document.getElementById('descricao').value;
+
+    fetch('/financeiro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo, valor, descricao }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Lançamento cadastrado com sucesso!');
+                atualizarFluxoCaixa(); // Atualiza o fluxo de caixa após o cadastro
+                event.target.reset();
+            } else {
+                alert('Erro ao cadastrar lançamento: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Erro ao cadastrar lançamento:', error));
 });
