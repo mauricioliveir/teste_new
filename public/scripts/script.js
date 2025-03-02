@@ -1,25 +1,47 @@
-// Manipulação dos links de navegação
-const navLinks = document.querySelectorAll(".nav-link");
-const sections = document.querySelectorAll("section");
-
-navLinks.forEach(link => {
-    link.addEventListener("click", function (event) {
-        event.preventDefault();
-        
-        // Remove a classe 'active' de todos os links e seções
-        navLinks.forEach(nav => nav.classList.remove("active"));
-        sections.forEach(sec => sec.classList.remove("active"));
-        
-        // Adiciona a classe 'active' apenas ao link e à seção correspondente
-        this.classList.add("active");
-        const targetSection = document.querySelector(this.getAttribute("href"));
-        if (targetSection) {
-            targetSection.classList.add("active");
-        }
-    });
+document.addEventListener("DOMContentLoaded", function () {
+    // Inicializa todas as funcionalidades
+    initNavigation();
+    initCEPValidation();
+    initCPFValidation();
+    initFormCompletionCheck();
+    initEstoque();
+    initContasReceber();
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+// 1. Navegação entre seções
+function initNavigation() {
+    const navLinks = document.querySelectorAll("nav ul li a");
+    const sections = document.querySelectorAll("section");
+
+    navLinks.forEach(link => {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const targetSection = document.querySelector(this.getAttribute("href"));
+            if (!targetSection) {
+                console.error(`Seção não encontrada para ${this.getAttribute("href")}`);
+                return;
+            }
+
+            // Remove a classe 'active' de todos os links e seções
+            navLinks.forEach(nav => nav.classList.remove("active"));
+            sections.forEach(sec => sec.classList.remove("active"));
+
+            // Adiciona a classe 'active' ao link e à seção correspondente
+            this.classList.add("active");
+            targetSection.classList.add("active");
+        });
+    });
+
+    // Exibir a primeira seção por padrão ao carregar a página
+    if (sections.length > 0) {
+        sections[0].classList.add("active");
+        navLinks[0].classList.add("active");
+    }
+}
+
+// 2. Validação e preenchimento automático de CEP
+function initCEPValidation() {
     const cepInput = document.getElementById("cep");
     const logradouroInput = document.getElementById("logradouro");
     const bairroInput = document.getElementById("bairro");
@@ -40,12 +62,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Busca o endereço ao perder o foco do campo CEP
     cepInput.addEventListener("blur", function () {
         let cep = this.value.replace(/\D/g, "");
-
-        logradouroInput.disabled = false;
-        cidadeInput.disabled = false;
-        estadoInput.disabled = false;
 
         if (cep.length !== 8) {
             alert("CEP inválido! Digite um CEP com 8 dígitos.");
@@ -74,6 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 cidadeInput.value = data.localidade;
                 estadoInput.value = data.uf;
 
+                // Desabilita os campos após o preenchimento automático
                 logradouroInput.disabled = true;
                 bairroInput.disabled = true;
                 cidadeInput.disabled = true;
@@ -81,32 +101,49 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => console.error("Erro ao buscar CEP:", error));
     });
-});
+}
 
-// Função para validar e formatar CPF
-const cpfInput = document.getElementById("cpf");
-const errorMessage = document.getElementById("error-message"); // Elemento para exibir mensagens de erro
+// 3. Validação e formatação de CPF
+function initCPFValidation() {
+    const cpfInput = document.getElementById("cpf");
+    const errorMessage = document.getElementById("error-message");
 
-cpfInput.addEventListener("input", () => {
-    let cpf = cpfInput.value.replace(/\D/g, ""); // Remove caracteres não numéricos
-    if (cpf.length > 11) cpf = cpf.slice(0, 11); // Limita a 11 dígitos
+    // Formatação do CPF
+    cpfInput.addEventListener("input", () => {
+        let cpf = cpfInput.value.replace(/\D/g, ""); // Remove caracteres não numéricos
+        if (cpf.length > 11) cpf = cpf.slice(0, 11); // Limita a 11 dígitos
 
-    // Formata o CPF
-    if (cpf.length >= 3) cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-    if (cpf.length >= 6) cpf = cpf.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-    if (cpf.length >= 9) cpf = cpf.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+        // Formata o CPF
+        if (cpf.length >= 3) cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+        if (cpf.length >= 6) cpf = cpf.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+        if (cpf.length >= 9) cpf = cpf.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
 
-    cpfInput.value = cpf; // Atualiza o valor do campo com o CPF formatado
-});
+        cpfInput.value = cpf; // Atualiza o valor do campo com o CPF formatado
+    });
+
+    // Validação do CPF
+    cpfInput.addEventListener("blur", () => {
+        let cpf = cpfInput.value.replace(/\D/g, "");
+
+        if (cpf.length === 11) {
+            if (!validarCPF(cpf)) {
+                errorMessage.textContent = "CPF inválido! Por favor, insira um CPF válido.";
+                errorMessage.style.color = "red";
+            } else {
+                errorMessage.textContent = "";
+            }
+        } else {
+            errorMessage.textContent = "";
+        }
+    });
+}
 
 // Função para validar CPF
 function validarCPF(cpf) {
-    cpf = cpf.replace(/\D/g, ""); // Remove caracteres não numéricos
+    cpf = cpf.replace(/\D/g, "");
 
-    // Verifica se o CPF tem 11 dígitos e não é uma sequência repetida
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
 
-    // Calcula o primeiro dígito verificador
     let soma = 0;
     for (let i = 0; i < 9; i++) {
         soma += parseInt(cpf.charAt(i)) * (10 - i);
@@ -115,58 +152,154 @@ function validarCPF(cpf) {
     if (resto === 10 || resto === 11) resto = 0;
     if (resto !== parseInt(cpf.charAt(9))) return false;
 
-    // Calcula o segundo dígito verificador
     soma = 0;
     for (let i = 0; i < 10; i++) {
         soma += parseInt(cpf.charAt(i)) * (11 - i);
     }
     resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    if (resto !== parseInt(cpf.charAt(10))) return false;
-
-    return true; // CPF válido
+    return resto === parseInt(cpf.charAt(10));
 }
 
-// Adiciona evento para validar o CPF apenas quando o campo tiver 11 caracteres
-cpfInput.addEventListener("blur", () => {
-    let cpf = cpfInput.value.replace(/\D/g, ""); // Remove caracteres não numéricos
+// 4. Verificação de preenchimento do formulário
+function initFormCompletionCheck() {
+    const form = document.getElementById('cadastro-funcionario-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const requiredFields = form.querySelectorAll('[required]');
 
-    // Verifica se o CPF tem 11 caracteres antes de validar
-    if (cpf.length === 11) {
-        if (!validarCPF(cpf)) {
-            errorMessage.textContent = "CPF inválido! Por favor, insira um CPF válido."; // Exibe a mensagem de erro
-            errorMessage.style.color = "red"; // Estiliza a mensagem de erro
-        } else {
-            errorMessage.textContent = ""; // Limpa a mensagem de erro se o CPF for válido
-        }
-    } else {
-        errorMessage.textContent = ""; // Limpa a mensagem de erro se o CPF tiver menos de 11 caracteres
+    function checkFormCompletion() {
+        let allFilled = true;
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) allFilled = false;
+        });
+        submitBtn.disabled = !allFilled;
     }
-});
-
-// Seleciona o botão e os campos do formulário
-const form = document.getElementById('cadastro-funcionario-form');
-const submitBtn = document.getElementById('submit-btn');
-const requiredFields = form.querySelectorAll('[required]');
-
-// Função para verificar se todos os campos obrigatórios estão preenchidos
-function checkFormCompletion() {
-    let allFilled = true;
 
     requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            allFilled = false;
-        }
+        field.addEventListener('input', checkFormCompletion);
     });
 
-    // Habilita ou desabilita o botão de submit
-    submitBtn.disabled = !allFilled;
+    checkFormCompletion(); // Verifica ao carregar a página
 }
 
-// Adiciona event listeners para verificar o preenchimento do formulário
-requiredFields.forEach(field => {
-    field.addEventListener('input', checkFormCompletion);
-});
+// 5. Gerenciamento de Estoque
+function initEstoque() {
+    const entradasEstoque = [];
 
-// Verifica o preenchimento do formulário ao carregar
-checkFormCompletion();
+    document.getElementById('cadastro-entrada-estoque-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const produto = document.getElementById('produto').value;
+        const quantidade = parseInt(document.getElementById('quantidade').value);
+        const valorUnitario = parseFloat(document.getElementById('valor-unitario').value);
+        const notaFiscal = document.getElementById('nota-fiscal').value;
+
+        const entrada = {
+            produto,
+            quantidade,
+            valorUnitario,
+            valorTotal: quantidade * valorUnitario,
+            notaFiscal,
+            data: new Date().toLocaleDateString()
+        };
+
+        entradasEstoque.push(entrada);
+        atualizarListaEntradasEstoque(entradasEstoque);
+        event.target.reset();
+    });
+
+    document.getElementById('gerar-relatorio-estoque').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.text("Relatório de Entradas de Estoque", 10, 10);
+        entradasEstoque.forEach((entrada, index) => {
+            const y = 20 + (index * 10);
+            doc.text(`${entrada.produto} - Quantidade: ${entrada.quantidade} - Valor Unitário: R$ ${entrada.valorUnitario.toFixed(2)} - NF: ${entrada.notaFiscal}`, 10, y);
+        });
+
+        doc.save("relatorio_estoque.pdf");
+    });
+}
+
+// 6. Gerenciamento de Contas a Receber
+function initContasReceber() {
+    const contasReceber = [];
+
+    document.getElementById('cadastro-conta-receber-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const cliente = document.getElementById('cliente').value;
+        const valor = parseFloat(document.getElementById('valor').value);
+        const dataVencimento = document.getElementById('data-vencimento').value;
+
+        const conta = { cliente, valor, dataVencimento, paga: false, dataPagamento: null };
+        contasReceber.push(conta);
+
+        atualizarListaContasReceber(contasReceber);
+        event.target.reset();
+    });
+
+    document.getElementById('gerar-relatorio-contas-receber').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.text("Relatório de Contas a Receber", 10, 10);
+        contasReceber.forEach((conta, index) => {
+            const y = 20 + (index * 10);
+            doc.text(`${conta.cliente} - R$ ${conta.valor.toFixed(2)} - ${conta.paga ? 'Recebida' : 'Pendente'}`, 10, y);
+        });
+
+        doc.save("relatorio_contas_receber.pdf");
+    });
+}
+
+// Funções auxiliares
+function atualizarListaEntradasEstoque(entradasEstoque) {
+    const lista = document.getElementById('lista-entradas-estoque');
+    lista.innerHTML = '';
+
+    entradasEstoque.forEach((entrada, index) => {
+        const item = document.createElement('li');
+        item.innerHTML = `
+            <strong>Produto:</strong> ${entrada.produto} |
+            <strong>Quantidade:</strong> ${entrada.quantidade} |
+            <strong>Valor Unitário:</strong> R$ ${entrada.valorUnitario.toFixed(2)} |
+            <strong>Valor Total:</strong> R$ ${entrada.valorTotal.toFixed(2)} |
+            <strong>Nota Fiscal:</strong> ${entrada.notaFiscal} |
+            <strong>Data:</strong> ${entrada.data}
+        `;
+        lista.appendChild(item);
+    });
+}
+
+function atualizarListaContasReceber(contasReceber) {
+    const lista = document.getElementById('lista-contas-receber');
+    lista.innerHTML = '';
+
+    contasReceber.forEach((conta, index) => {
+        const item = document.createElement('li');
+        item.innerHTML = `
+            ${conta.cliente} - R$ ${conta.valor.toFixed(2)} - Vencimento: ${conta.dataVencimento}
+            <button onclick="marcarComoRecebida(${index})">${conta.paga ? 'Recebida' : 'Receber'}</button>
+        `;
+        lista.appendChild(item);
+    });
+}
+
+function marcarComoRecebida(index) {
+    const conta = contasReceber[index];
+    const hoje = new Date().toISOString().split('T')[0];
+    const vencimento = new Date(conta.dataVencimento);
+    const dataPagamento = new Date(hoje);
+
+    if (dataPagamento > vencimento) {
+        const diasAtraso = Math.ceil((dataPagamento - vencimento) / (1000 * 60 * 60 * 24));
+        const juros = conta.valor * 0.02 * diasAtraso; // 2% de juros ao dia
+        const multa = conta.valor * 0.05; // 5% de multa
+        conta.valor += juros + multa;
+    }
+
+    conta.paga = true;
+    conta.dataPagamento = hoje;
+    atualizarListaContasReceber(contasReceber);
+}
