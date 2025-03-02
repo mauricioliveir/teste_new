@@ -4,6 +4,7 @@ const { Pool } = require('pg');
 const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const PDFDocument = require('pdfkit');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -137,31 +138,133 @@ app.get('/funcionarios', async (req, res) => {
     }
 });
 
-// Rota para listar entradas financeiras
-app.get('/financeiro', async (req, res) => {
+// Rota para cadastrar conta a pagar
+app.post('/contas-a-pagar', async (req, res) => {
+    const { descricao, valor, vencimento } = req.body;
+
     try {
-        const result = await pool.query('SELECT * FROM public.financeiro');
-        res.json({ success: true, financeiro: result.rows });
+        const result = await pool.query(
+            'INSERT INTO public.contas_a_pagar (descricao, valor, vencimento) VALUES ($1, $2, $3) RETURNING *',
+            [descricao, valor, vencimento]
+        );
+        res.json({ success: true, message: 'Conta a pagar cadastrada com sucesso!', conta: result.rows[0] });
     } catch (err) {
-        console.error('Erro ao buscar entradas financeiras:', err);
+        console.error('Erro ao cadastrar conta a pagar:', err);
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
     }
 });
 
-// Rota para cadastro de entrada financeira
-app.post('/financeiro', async (req, res) => {
-    const { tipo, valor, descricao } = req.body;
+// Rota para cadastrar conta a receber
+app.post('/contas-a-receber', async (req, res) => {
+    const { descricao, valor, vencimento } = req.body;
 
     try {
         const result = await pool.query(
-            'INSERT INTO public.financeiro (tipo, valor, descricao) VALUES ($1, $2, $3) RETURNING *',
-            [tipo, valor, descricao]
+            'INSERT INTO public.contas_a_receber (descricao, valor, vencimento) VALUES ($1, $2, $3) RETURNING *',
+            [descricao, valor, vencimento]
         );
-
-        res.json({ success: true, message: 'Entrada financeira cadastrada com sucesso!', data: result.rows[0] });
+        res.json({ success: true, message: 'Conta a receber cadastrada com sucesso!', conta: result.rows[0] });
     } catch (err) {
-        console.error('Erro ao cadastrar entrada financeira:', err);
+        console.error('Erro ao cadastrar conta a receber:', err);
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para cadastrar fluxo de caixa
+app.post('/fluxo-caixa', async (req, res) => {
+    const { tipo, valor, data } = req.body;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO public.fluxo_caixa (tipo, valor, data) VALUES ($1, $2, $3) RETURNING *',
+            [tipo, valor, data]
+        );
+        res.json({ success: true, message: 'Fluxo de caixa registrado com sucesso!', fluxo: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao registrar fluxo de caixa:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para listar contas a pagar
+app.get('/contas-a-pagar', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.contas_a_pagar');
+        res.json({ success: true, contas: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar contas a pagar:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para listar contas a receber
+app.get('/contas-a-receber', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.contas_a_receber');
+        res.json({ success: true, contas: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar contas a receber:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para gerar PDF com contas a pagar
+app.get('/gerar-pdf-contas-a-pagar', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.contas_a_pagar');
+
+        const doc = new PDFDocument();
+        let filename = 'contas_a_pagar.pdf';
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
+        doc.pipe(res);
+
+        doc.fontSize(20).text('Contas a Pagar', { align: 'center' });
+        doc.moveDown();
+
+        result.rows.forEach(conta => {
+            doc.fontSize(12).text(`Descrição: ${conta.descricao}`);
+            doc.text(`Valor: R$ ${conta.valor.toFixed(2)}`);
+            doc.text(`Vencimento: ${conta.vencimento}`);
+            doc.text(`Status: ${conta.status}`);
+            doc.moveDown();
+        });
+
+        doc.end();
+    } catch (err) {
+        console.error('Erro ao gerar PDF de contas a pagar:', err);
+        res.status(500).json({ success: false, message: 'Erro ao gerar PDF.' });
+    }
+});
+
+// Rota para gerar PDF com contas a receber
+app.get('/gerar-pdf-contas-a-receber', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.contas_a_receber');
+
+        const doc = new PDFDocument();
+        let filename = 'contas_a_receber.pdf';
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
+        doc.pipe(res);
+
+        doc.fontSize(20).text('Contas a Receber', { align: 'center' });
+        doc.moveDown();
+
+        result.rows.forEach(conta => {
+            doc.fontSize(12).text(`Descrição: ${conta.descricao}`);
+            doc.text(`Valor: R$ ${conta.valor.toFixed(2)}`);
+            doc.text(`Vencimento: ${conta.vencimento}`);
+            doc.text(`Status: ${conta.status}`);
+            doc.moveDown();
+        });
+
+        doc.end();
+    } catch (err) {
+        console.error('Erro ao gerar PDF de contas a receber:', err);
+        res.status(500).json({ success: false, message: 'Erro ao gerar PDF.' });
     }
 });
 

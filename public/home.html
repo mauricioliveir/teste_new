@@ -135,34 +135,34 @@
 
             <div>
                 <h2>Contas a Pagar</h2>
-                <form id="cadastro-conta-pagar-form">
-                    <label for="descricao">Descrição:</label>
-                    <input type="text" id="descricao" required>
-                    <label for="valor">Valor:</label>
-                    <input type="number" id="valor" step="0.01" required>
-                    <label for="data-vencimento">Data de Vencimento:</label>
-                    <input type="date" id="data-vencimento" required>
-                    <button type="submit">Cadastrar</button>
+                <form id="form-conta-pagar">
+                    <label for="descricao-pagar">Descrição:</label>
+                    <input type="text" id="descricao-pagar" required><br>
+                    <label for="valor-pagar">Valor:</label>
+                    <input type="number" id="valor-pagar" required><br>
+                    <label for="vencimento-pagar">Vencimento:</label>
+                    <input type="date" id="vencimento-pagar" required><br>
+                    <button type="submit">Cadastrar Conta a Pagar</button>
                 </form>
                 <h2>Contas Cadastradas</h2>
                 <ul id="lista-contas-pagar"></ul>
-                <button id="gerar-relatorio-contas-pagar">Gerar Relatório (PDF)</button>
+                <button id="gerar-pdf-contas-a-pagar">Gerar PDF Contas a Pagar</button>
             </div>
 
             <div>
                 <h2>Contas a Receber</h2>
-                <form id="cadastro-conta-receber-form">
-                    <label for="cliente">Cliente:</label>
-                    <input type="text" id="cliente" required>
-                    <label for="valor">Valor:</label>
-                    <input type="number" id="valor" step="0.01" required>
-                    <label for="data-vencimento">Data de Vencimento:</label>
-                    <input type="date" id="data-vencimento" required>
-                    <button type="submit">Cadastrar</button>
+                <form id="form-conta-receber">
+                    <label for="descricao-receber">Descrição:</label>
+                    <input type="text" id="descricao-receber" required><br>
+                    <label for="valor-receber">Valor:</label>
+                    <input type="number" id="valor-receber" required><br>
+                    <label for="vencimento-receber">Vencimento:</label>
+                    <input type="date" id="vencimento-receber" required><br>
+                    <button type="submit">Cadastrar Conta a Receber</button>
                 </form>
                 <h2>Contas Cadastradas</h2>
                 <ul id="lista-contas-receber"></ul>
-                <button id="gerar-relatorio-contas-receber">Gerar Relatório (PDF)</button>
+                <button id="gerar-pdf-contas-a-receber">Gerar PDF Contas a Receber</button>
             </div>
         </section>
 

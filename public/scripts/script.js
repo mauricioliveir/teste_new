@@ -365,28 +365,38 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Atualiza o fluxo de caixa após cadastrar uma entrada/saída
-document.getElementById('tesouraria-form').addEventListener('submit', function (event) {
-    event.preventDefault();
+document.getElementById('form-conta-pagar').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const descricao = document.getElementById('descricao-pagar').value;
+    const valor = document.getElementById('valor-pagar').value;
+    const vencimento = document.getElementById('vencimento-pagar').value;
 
-    const tipo = document.getElementById('tipo').value;
-    const valor = parseFloat(document.getElementById('valor').value);
-    const descricao = document.getElementById('descricao').value;
-
-    fetch('/financeiro', {
+    fetch('/contas-a-pagar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tipo, valor, descricao }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Lançamento cadastrado com sucesso!');
-                atualizarFluxoCaixa(); // Atualiza o fluxo de caixa após o cadastro
-                event.target.reset();
-            } else {
-                alert('Erro ao cadastrar lançamento: ' + data.message);
-            }
-        })
-        .catch(error => console.error('Erro ao cadastrar lançamento:', error));
+        body: JSON.stringify({ descricao, valor, vencimento })
+    }).then(response => response.json())
+    .then(data => alert(data.message));
+});
+
+document.getElementById('form-conta-receber').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const descricao = document.getElementById('descricao-receber').value;
+    const valor = document.getElementById('valor-receber').value;
+    const vencimento = document.getElementById('vencimento-receber').value;
+
+    fetch('/contas-a-receber', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ descricao, valor, vencimento })
+    }).then(response => response.json())
+    .then(data => alert(data.message));
+});
+
+document.getElementById('gerar-pdf-contas-a-pagar').addEventListener('click', function () {
+    window.open('/gerar-pdf-contas-a-pagar', '_blank');
+});
+
+document.getElementById('gerar-pdf-contas-a-receber').addEventListener('click', function () {
+    window.open('/gerar-pdf-contas-a-receber', '_blank');
 });
