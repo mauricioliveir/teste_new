@@ -225,3 +225,181 @@ section.active {
     font-size: 14px;
     margin-top: 10px;
 }
+
+/* Estilos específicos para a seção Financeiro */
+#financeiro {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#financeiro h2 {
+    color: var(--cor-primaria);
+    margin-bottom: 15px;
+}
+
+#financeiro form {
+    margin-bottom: 20px;
+}
+
+#financeiro label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#financeiro input, #financeiro select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+#financeiro button {
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+#financeiro button:hover {
+    background-color: var(--cor-botao-hover);
+}
+
+#financeiro ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#financeiro ul li {
+    background-color: var(--cor-fundo);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Estilos específicos para a seção Vendas */
+#vendas {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#vendas h2 {
+    color: var(--cor-primaria);
+    margin-bottom: 15px;
+}
+
+#vendas form {
+    margin-bottom: 20px;
+}
+
+#vendas label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#vendas input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+#vendas button {
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+#vendas button:hover {
+    background-color: var(--cor-botao-hover);
+}
+
+#nota-fiscal {
+    background-color: var(--cor-fundo);
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+/* Estilos específicos para a seção Estoque */
+#estoque {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#estoque h2 {
+    color: var(--cor-primaria);
+    margin-bottom: 15px;
+}
+
+#estoque form {
+    margin-bottom: 20px;
+}
+
+#estoque label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#estoque input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+#estoque button {
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+#estoque button:hover {
+    background-color: var(--cor-botao-hover);
+}
+
+#lista-entradas-estoque {
+    list-style-type: none;
+    padding: 0;
+}
+
+#lista-entradas-estoque li {
+    background-color: var(--cor-fundo);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
