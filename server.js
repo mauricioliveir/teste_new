@@ -1,4 +1,4 @@
-require('dotenv').config(); // Carregar variáveis de ambiente
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
     secure: process.env.EMAIL_PORT == 465, // Para SSL/TLS, usar a porta 465
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Usando a variável correta para a senha de app
+        pass: process.env.EMAIL_PASS,
     },
 });
 
@@ -75,7 +75,6 @@ app.post('/login', async (req, res) => {
 app.post('/reset-password', async (req, res) => {
     const { email } = req.body;
     try {
-        // Buscar o usuário no banco de dados
         const user = await pool.query('SELECT * FROM public.users WHERE email = $1', [email]);
 
         if (user.rows.length === 0) {
@@ -101,29 +100,9 @@ app.post('/reset-password', async (req, res) => {
 
 // Rota para cadastro de funcionário
 app.post('/funcionarios', async (req, res) => {
-    const { nome, cpf, rg, filiacao, cep, logradouro, numero, bairro, 
-        cidade, estado, telefone, email, cargo_admitido, salario } = req.body;
-
-    // Depuração: Verifique os dados recebidos
-    console.log('Dados recebidos:', {
-        nome,
-        cpf,
-        rg,
-        filiacao,
-        cep,
-        logradouro,
-        numero,
-        bairro,
-        cidade,
-        estado,
-        telefone,
-        email,
-        cargo_admitido,
-        salario
-    });
+    const { nome, cpf, rg, filiacao, cep, logradouro, numero, bairro, cidade, estado, telefone, email, cargo_admitido, salario } = req.body;
 
     try {
-        // Verificar se o CPF ou email já existe
         const funcionarioExiste = await pool.query(
             'SELECT * FROM public.funcionarios WHERE cpf = $1 OR email = $2', 
             [cpf, email]
@@ -133,27 +112,19 @@ app.post('/funcionarios', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Funcionário já cadastrado.' });
         }
 
-        // Inserir novo funcionário
         const result = await pool.query(
             `INSERT INTO public.funcionarios 
-            (nome, cpf, rg, filiacao, cep, logradouro, numero, bairro,
-            cidade, estado, telefone, email, cargo_admitido, salario) 
+            (nome, cpf, rg, filiacao, cep, logradouro, numero, bairro, cidade, estado, telefone, email, cargo_admitido, salario) 
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
-            [nome, cpf, rg, filiacao, cep, logradouro, numero, bairro,
-                cidade, estado, telefone, email, cargo_admitido, salario]
+            [nome, cpf, rg, filiacao, cep, logradouro, numero, bairro, cidade, estado, telefone, email, cargo_admitido, salario]
         );
 
         res.json({ success: true, message: 'Funcionário cadastrado com sucesso!', funcionario: result.rows[0] });
     } catch (err) {
         console.error('Erro ao cadastrar funcionário:', err);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erro no servidor.', 
-            error: err.message // Envia detalhes do erro para o frontend
-        });
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
     }
 });
-
 
 // Rota para listar funcionários
 app.get('/funcionarios', async (req, res) => {
@@ -165,6 +136,91 @@ app.get('/funcionarios', async (req, res) => {
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
     }
 });
+
+// Rota para cadastro de entrada financeira
+app.post('/financeiro', async (req, res) => {
+    const { tipo, valor, descricao } = req.body;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO public.financeiro (tipo, valor, descricao) VALUES ($1, $2, $3) RETURNING *',
+            [tipo, valor, descricao]
+        );
+
+        res.json({ success: true, message: 'Entrada financeira cadastrada com sucesso!', data: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao cadastrar entrada financeira:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para listar entradas financeiras
+app.get('/financeiro', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.financeiro');
+        res.json({ success: true, financeiro: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar entradas financeiras:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para cadastro de venda
+app.post('/vendas', async (req, res) => {
+    const { cliente, produto, valor } = req.body;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO public.vendas (cliente, produto, valor) VALUES ($1, $2, $3) RETURNING *',
+            [cliente, produto, valor]
+        );
+
+        res.json({ success: true, message: 'Venda cadastrada com sucesso!', data: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao cadastrar venda:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para listar vendas
+app.get('/vendas', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.vendas');
+        res.json({ success: true, vendas: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar vendas:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para cadastro de entrada no estoque
+app.post('/estoque', async (req, res) => {
+    const { produto, quantidade, valorUnitario, notaFiscal } = req.body;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO public.estoque (produto, quantidade, valor_unitario, valor_total, nota_fiscal) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [produto, quantidade, valorUnitario, quantidade * valorUnitario, notaFiscal]
+        );
+
+        res.json({ success: true, message: 'Entrada no estoque cadastrada com sucesso!', data: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao cadastrar entrada no estoque:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para listar entradas no estoque
+app.get('/estoque', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.estoque');
+        res.json({ success: true, estoque: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar entradas no estoque:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
 // Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
