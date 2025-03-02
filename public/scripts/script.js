@@ -1,11 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Inicializa todas as funcionalidades
-    initNavigation();
-    initCEPValidation();
-    initCPFValidation();
-    initFormCompletionCheck();
-    initEstoque();
-    initContasReceber();
+    // Verifica se o usuário está logado
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+
+    if (isLoggedIn !== 'true') {
+        // Se o usuário não estiver logado, redireciona para a página de login
+        window.location.href = '/login.html';
+    } else {
+        // Se o usuário estiver logado, inicializa as funcionalidades da página home
+        initNavigation();
+        initCEPValidation();
+        initCPFValidation();
+        initFormCompletionCheck();
+        initEstoque();
+        initContasReceber();
+    }
 });
 
 // 1. Navegação entre seções
@@ -303,3 +311,8 @@ function marcarComoRecebida(index) {
     conta.dataPagamento = hoje;
     atualizarListaContasReceber(contasReceber);
 }
+
+document.getElementById('logout-btn').addEventListener('click', function () {
+    sessionStorage.removeItem('isLoggedIn'); // Remove o status de logado
+    window.location.href = '/login.html'; // Redireciona para a página de login
+});
