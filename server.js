@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -208,35 +209,8 @@ app.get('/contas-a-receber', async (req, res) => {
     }
 });
 
-// Rota para gerar PDF com contas a pagar
-app.get('/gerar-pdf-contas-a-pagar', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM public.contas_a_pagar');
-
-        const doc = new PDFDocument();
-        let filename = 'contas_a_pagar.pdf';
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
-
-        doc.pipe(res);
-
-        doc.fontSize(20).text('Contas a Pagar', { align: 'center' });
-        doc.moveDown();
-
-        result.rows.forEach(conta => {
-            doc.fontSize(12).text(`Descrição: ${conta.descricao}`);
-            doc.text(`Valor: R$ ${conta.valor.toFixed(2)}`);
-            doc.text(`Vencimento: ${conta.vencimento}`);
-            doc.text(`Status: ${conta.status}`);
-            doc.moveDown();
-        });
-
-        doc.end();
-    } catch (err) {
-        console.error('Erro ao gerar PDF de contas a pagar:', err);
-        res.status(500).json({ success: false, message: 'Erro ao gerar PDF.' });
-    }
-});
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
 // Rota para gerar PDF com contas a receber
 app.get('/gerar-pdf-contas-a-receber', async (req, res) => {
