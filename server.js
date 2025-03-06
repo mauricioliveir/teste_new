@@ -4,6 +4,8 @@ const { Pool } = require('pg');
 const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -153,6 +155,17 @@ app.post('/contas-a-pagar', async (req, res) => {
     }
 });
 
+// Rota para listar contas a pagar
+app.get('/contas-a-pagar', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.contas_a_pagar');
+        res.json({ success: true, contas: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar contas a pagar:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
 // Rota para cadastrar conta a receber
 app.post('/contas-a-receber', async (req, res) => {
     const { descricao, valor, vencimento } = req.body;
@@ -169,33 +182,6 @@ app.post('/contas-a-receber', async (req, res) => {
     }
 });
 
-// Rota para cadastrar fluxo de caixa
-app.post('/fluxo-caixa', async (req, res) => {
-    const { tipo, valor, data } = req.body;
-
-    try {
-        const result = await pool.query(
-            'INSERT INTO public.fluxo_caixa (tipo, valor, data) VALUES ($1, $2, $3) RETURNING *',
-            [tipo, valor, data]
-        );
-        res.json({ success: true, message: 'Fluxo de caixa registrado com sucesso!', fluxo: result.rows[0] });
-    } catch (err) {
-        console.error('Erro ao registrar fluxo de caixa:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para listar contas a pagar
-app.get('/contas-a-pagar', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM public.contas_a_pagar');
-        res.json({ success: true, contas: result.rows });
-    } catch (err) {
-        console.error('Erro ao buscar contas a pagar:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
 // Rota para listar contas a receber
 app.get('/contas-a-receber', async (req, res) => {
     try {
@@ -207,10 +193,63 @@ app.get('/contas-a-receber', async (req, res) => {
     }
 });
 
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
+// Rota para cadastrar fluxo de caixa
+app.post('/fluxo-caixa', async (req, res) => {
+    const { tipo, valor, descricao } = req.body;
 
-// Rota para gerar PDF com contas a receber
+    try {
+        const result = await pool.query(
+            'INSERT INTO public.fluxo_caixa (tipo, valor, descricao) VALUES ($1, $2, $3) RETURNING *',
+            [tipo, valor, descricao]
+        );
+        res.json({ success: true, message: 'Fluxo de caixa registrado com sucesso!', fluxo: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao registrar fluxo de caixa:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para listar fluxo de caixa
+app.get('/fluxo-caixa', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.fluxo_caixa');
+        res.json({ success: true, fluxo: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar fluxo de caixa:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para gerar PDF de contas a pagar
+app.get('/gerar-pdf-contas-a-pagar', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM public.contas_a_pagar');
+
+        const doc = new PDFDocument();
+        let filename = 'contas_a_pagar.pdf';
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
+        doc.pipe(res);
+
+        doc.fontSize(20).text('Contas a Pagar', { align: 'center' });
+        doc.moveDown();
+
+        result.rows.forEach(conta => {
+            doc.fontSize(12).text(`Descrição: ${conta.descricao}`);
+            doc.text(`Valor: R$ ${conta.valor.toFixed(2)}`);
+            doc.text(`Vencimento: ${conta.vencimento}`);
+            doc.moveDown();
+        });
+
+        doc.end();
+    } catch (err) {
+        console.error('Erro ao gerar PDF de contas a pagar:', err);
+        res.status(500).json({ success: false, message: 'Erro ao gerar PDF.' });
+    }
+});
+
+// Rota para gerar PDF de contas a receber
 app.get('/gerar-pdf-contas-a-receber', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM public.contas_a_receber');
@@ -229,7 +268,6 @@ app.get('/gerar-pdf-contas-a-receber', async (req, res) => {
             doc.fontSize(12).text(`Descrição: ${conta.descricao}`);
             doc.text(`Valor: R$ ${conta.valor.toFixed(2)}`);
             doc.text(`Vencimento: ${conta.vencimento}`);
-            doc.text(`Status: ${conta.status}`);
             doc.moveDown();
         });
 
@@ -240,88 +278,31 @@ app.get('/gerar-pdf-contas-a-receber', async (req, res) => {
     }
 });
 
-// Rota para cadastro de venda
-app.post('/vendas', async (req, res) => {
-    const { cliente, produto, valor } = req.body;
-
+// Rota para gerar PDF de fluxo de caixa
+app.get('/gerar-pdf-fluxo-caixa', async (req, res) => {
     try {
-        const result = await pool.query(
-            'INSERT INTO public.vendas (cliente, produto, valor) VALUES ($1, $2, $3) RETURNING *',
-            [cliente, produto, valor]
-        );
-
-        res.json({ success: true, message: 'Venda cadastrada com sucesso!', data: result.rows[0] });
-    } catch (err) {
-        console.error('Erro ao cadastrar venda:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para listar vendas
-app.get('/vendas', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM public.vendas');
-        res.json({ success: true, vendas: result.rows });
-    } catch (err) {
-        console.error('Erro ao buscar vendas:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para cadastro de entrada no estoque
-app.post('/estoque', async (req, res) => {
-    const { produto, quantidade, valorUnitario, notaFiscal } = req.body;
-
-    try {
-        const result = await pool.query(
-            'INSERT INTO public.estoque (produto, quantidade, valor_unitario, valor_total, nota_fiscal) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [produto, quantidade, valorUnitario, quantidade * valorUnitario, notaFiscal]
-        );
-
-        res.json({ success: true, message: 'Entrada no estoque cadastrada com sucesso!', data: result.rows[0] });
-    } catch (err) {
-        console.error('Erro ao cadastrar entrada no estoque:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para listar entradas no estoque
-app.get('/estoque', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM public.estoque');
-        res.json({ success: true, estoque: result.rows });
-    } catch (err) {
-        console.error('Erro ao buscar entradas no estoque:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para gerar PDF com vendas
-app.get('/gerar-pdf-vendas', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM public.vendas');
+        const result = await pool.query('SELECT * FROM public.fluxo_caixa');
 
         const doc = new PDFDocument();
-        let filename = 'vendas.pdf';
+        let filename = 'fluxo_caixa.pdf';
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
 
         doc.pipe(res);
 
-        doc.fontSize(20).text('Relatório de Vendas', { align: 'center' });
+        doc.fontSize(20).text('Fluxo de Caixa', { align: 'center' });
         doc.moveDown();
 
-        result.rows.forEach(venda => {
-            doc.fontSize(12).text(`Cliente: ${venda.cliente}`);
-            doc.text(`Produto: ${venda.produto}`);
-            doc.text(`Valor: R$ ${venda.valor.toFixed(2)}`);
-            doc.text(`Data: ${venda.data}`);
+        result.rows.forEach(fluxo => {
+            doc.fontSize(12).text(`Tipo: ${fluxo.tipo}`);
+            doc.text(`Valor: R$ ${fluxo.valor.toFixed(2)}`);
+            doc.text(`Descrição: ${fluxo.descricao}`);
             doc.moveDown();
         });
 
         doc.end();
     } catch (err) {
-        console.error('Erro ao gerar PDF de vendas:', err);
+        console.error('Erro ao gerar PDF de fluxo de caixa:', err);
         res.status(500).json({ success: false, message: 'Erro ao gerar PDF.' });
     }
 });
