@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
         initEstoque();
         initContasReceber();
         initRelatorios();
+        atualizarFluxoCaixa(); // Atualiza o fluxo de caixa ao carregar a página
     }
 });
 
@@ -46,15 +47,6 @@ function initNavigation() {
         navLinks[0].classList.add("active");
     }
 }
-
-document.addEventListener("DOMContentLoaded", function() {
-    fetch("cadastro-funcionario.html")
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById("conteudo-dep-pessoal").innerHTML = html;
-        })
-        .catch(error => console.error("Erro ao carregar a página:", error));
-});
 
 // 2. Validação e preenchimento automático de CEP
 function initCEPValidation() {
@@ -328,15 +320,15 @@ document.getElementById('logout-button').addEventListener('click', function () {
 
 // Função para atualizar o fluxo de caixa
 function atualizarFluxoCaixa() {
-    fetch('/financeiro')
+    fetch('/fluxo-caixa')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const entradas = data.financeiro
+                const entradas = data.fluxo
                     .filter(item => item.tipo === 'entrada')
                     .reduce((total, item) => total + parseFloat(item.valor), 0);
 
-                const saidas = data.financeiro
+                const saidas = data.fluxo
                     .filter(item => item.tipo === 'saida')
                     .reduce((total, item) => total + parseFloat(item.valor), 0);
 
