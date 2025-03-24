@@ -1,0 +1,405 @@
+/* Importação de fontes */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Variáveis de cores */
+:root {
+    --cor-primaria: #033b77;
+    --cor-secundaria: #0056b3;
+    --cor-fundo: #f4f4f4;
+    --cor-texto: #333;
+    --cor-header: #f8f9fa;
+    --cor-borda: #ddd;
+    --cor-hover: #004494;
+    --cor-botao: #007bff;
+    --cor-botao-hover: #0056b3;
+}
+
+/* Estilos gerais */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--cor-fundo);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    color: var(--cor-texto);
+}
+
+/* Estilos para o header */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--cor-fundo);
+    
+   
+}
+
+header img {
+    height: 80px;
+}
+
+.titulo__pagina {
+    font-size: 24px;
+    font-weight: 400px;
+    color: var(--cor-primaria);
+}
+
+* Estilos para a barra de navegação horizontal */
+nav {
+    background-color: var(--cor-primaria);
+    padding: 10px 20px;
+    width: 100%;
+}
+
+nav ul {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    gap: 15px; /* Espaçamento entre os itens */
+    justify-content: flex-start; /* Alinha os itens à esquerda */
+}
+
+nav ul li {
+    margin-bottom: 0; /* Remove a margem inferior */
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    background-color: var(--cor-primaria);
+    font-weight: 700;
+    display: block;
+    padding: 10px;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: var(--cor-hover);
+}
+
+/* Estilização do link ativo */
+.nav-link.active {
+    color:var(--cor-primaria);
+    font-weight: bold;
+    background-color: var(--cor-fundo);
+    border-bottom: darkorange 1px outset;
+
+}
+
+
+/* Estilos para o conteúdo principal */
+main {
+    padding: 20px;
+    flex: 1;
+}
+
+/* Estilos para as seções */
+section {
+    display: none;
+    background-color: var(--cor-fundo);
+    padding: 20px;
+    border-radius: 8px;
+
+}
+
+section.active {
+    display: block;
+}
+
+/* Estilos para os botões de funcionalidades */
+.funcionalidades {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.funcionalidades button {
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.funcionalidades button:hover {
+    background-color: var(--cor-botao-hover);
+}
+
+#cadastro-funcionario-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: auto;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Estilos para o botão principal */
+.btn {
+    width: 100%;
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+/* Estilos para o botão desabilitado */
+.btn:disabled {
+    background-color: var(--cor-botao-desabilitado);
+    color: var(--cor-botao-texto-desabilitado);
+    cursor: not-allowed;
+    pointer-events: none; /* Desativa interações com o botão */
+}
+
+/* Estilos para o hover no botão */
+.btn:hover:not(:disabled) {
+    background-color: var(--cor-botao-hover);
+}
+
+/* Estilos para o footer */
+.footer {
+    background-color: var(--cor-header);
+    padding: 24px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: auto;
+    border-top: 1px solid var(--cor-borda);
+}
+
+/* Estilos para o botão de logout */
+#logout-button {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--cor-primaria);
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+}
+
+#logout-button:hover {
+    background-color: var(--cor-hover);
+}
+
+#logout-button.disabled {
+    background-color: var(--cor-secundaria);
+    cursor: not-allowed;
+}
+
+#error-message{
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Estilos específicos para a seção Financeiro */
+#financeiro {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#financeiro h2 {
+    color: var(--cor-primaria);
+    margin-bottom: 15px;
+}
+
+#financeiro form {
+    margin-bottom: 20px;
+}
+
+#financeiro label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#financeiro input, #financeiro select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+#financeiro button {
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+#financeiro button:hover {
+    background-color: var(--cor-botao-hover);
+}
+
+#financeiro ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#financeiro ul li {
+    background-color: var(--cor-fundo);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Estilos específicos para a seção Vendas */
+#vendas {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#vendas h2 {
+    color: var(--cor-primaria);
+    margin-bottom: 15px;
+}
+
+#vendas form {
+    margin-bottom: 20px;
+}
+
+#vendas label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#vendas input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+#vendas button {
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+#vendas button:hover {
+    background-color: var(--cor-botao-hover);
+}
+
+#nota-fiscal {
+    background-color: var(--cor-fundo);
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+/* Estilos específicos para a seção Estoque */
+#estoque {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#estoque h2 {
+    color: var(--cor-primaria);
+    margin-bottom: 15px;
+}
+
+#estoque form {
+    margin-bottom: 20px;
+}
+
+#estoque label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#estoque input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+#estoque button {
+    background-color: var(--cor-botao);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+#estoque button:hover {
+    background-color: var(--cor-botao-hover);
+}
+
+#lista-entradas-estoque {
+    list-style-type: none;
+    padding: 0;
+}
+
+#lista-entradas-estoque li {
+    background-color: var(--cor-fundo);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
