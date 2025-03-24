@@ -220,11 +220,6 @@ document.getElementById('tesouraria-form').addEventListener('submit', async (e) 
     }
 });
 
-// Função para gerar relatório financeiro em PDF
-document.getElementById('gerar-relatorio-financeiro').addEventListener('click', () => {
-    window.location.href = '/relatorio-financeiro';
-});
-
 // Função para atualizar o fluxo de caixa
 async function atualizarFluxoCaixa() {
     try {
@@ -237,9 +232,9 @@ async function atualizarFluxoCaixa() {
 
         lancamentos.forEach(lancamento => {
             if (lancamento.tipo === 'entrada') {
-                entradas += lancamento.valor;
+                entradas += parseFloat(lancamento.valor);
             } else {
-                saidas += lancamento.valor;
+                saidas += parseFloat(lancamento.valor);
             }
         });
 
@@ -250,5 +245,70 @@ async function atualizarFluxoCaixa() {
         document.getElementById('saldo-final').textContent = saldoFinal.toFixed(2);
     } catch (err) {
         console.error('Erro ao atualizar fluxo de caixa:', err);
+    }
+}
+
+// Função para gerar relatório financeiro em PDF
+document.getElementById('gerar-relatorio-financeiro').addEventListener('click', () => {
+    window.location.href = '/relatorio-financeiro';
+});
+
+// Inicializa o fluxo de caixa ao carregar a página
+document.addEventListener('DOMContentLoaded', () => {
+    atualizarFluxoCaixa();
+});
+
+// Função para registrar uma venda
+document.getElementById('cadastro-venda-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const cliente = document.getElementById('cliente-venda').value;
+    const produto = document.getElementById('produto-venda').value;
+    const valor = parseFloat(document.getElementById('valor-venda').value);
+
+    try {
+        const response = await fetch('/vendas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cliente, produto, valor })
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Venda registrada com sucesso!');
+            exibirNotaFiscal(data.venda);
+        } else {
+            alert('Erro ao registrar venda.');
+        }
+    } catch (err) {
+        console.error('Erro ao enviar dados:', err);
+    }
+});
+
+// Função para exibir a nota fiscal
+function exibirNotaFiscal(venda) {
+    const notaFiscalDiv = document.getElementById('nota-fiscal');
+    notaFiscalDiv.innerHTML = `
+        <h3>Nota Fiscal</h3>
+        <p><strong>Cliente:</strong> ${venda.cliente}</p>
+        <p><strong>Produto:</strong> ${venda.produto}</p>
+        <p><strong>Valor:</strong> R$ ${venda.valor.toFixed(2)}</p>
+        <p><strong>Data:</strong> ${new Date(venda.data).toLocaleString()}</p>
+    `;
+}
+
+// Função para gerar relatório de vendas em PDF
+document.getElementById('gerar-relatorio-vendas').addEventListener('click', () => {
+    window.location.href = '/relatorio-vendas';
+});
+
+// Função para carregar as vendas ao abrir a página
+async function carregarVendas() {
+    try {
+        const response = await fetch('/vendas');
+        const data = await response.json();
+        if (data.success && data.vendas.length > 0) {
+            exibirNotaFiscal(data.vendas[0]); // Exibe a última venda registrada
+        }
+    } catch (err) {
+        console.error('Erro ao carregar vendas:', err);
     }
 }

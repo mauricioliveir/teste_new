@@ -144,7 +144,7 @@ app.post('/tesouraria', async (req, res) => {
     const { tipo, valor, descricao } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO public.tesouraria (tipo, valor, descricao) VALUES ($1, $2, $3) RETURNING *',
+            'INSERT INTO tesouraria (tipo, valor, descricao) VALUES ($1, $2, $3) RETURNING *',
             [tipo, valor, descricao]
         );
         res.json({ success: true, message: 'Lançamento realizado com sucesso!', lancamento: result.rows[0] });
@@ -154,32 +154,13 @@ app.post('/tesouraria', async (req, res) => {
     }
 });
 
-// Rota para contas a pagar
-app.post('/contas-pagar', async (req, res) => {
-    const { descricao, valor, vencimento } = req.body;
+// Rota para listar lançamentos de tesouraria
+app.get('/tesouraria', async (req, res) => {
     try {
-        const result = await pool.query(
-            'INSERT INTO public.contas_pagar (descricao, valor, vencimento) VALUES ($1, $2, $3) RETURNING *',
-            [descricao, valor, vencimento]
-        );
-        res.json({ success: true, message: 'Conta a pagar cadastrada com sucesso!', conta: result.rows[0] });
+        const result = await pool.query('SELECT * FROM tesouraria');
+        res.json({ success: true, lancamentos: result.rows });
     } catch (err) {
-        console.error('Erro ao cadastrar conta a pagar:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para contas a receber
-app.post('/contas-receber', async (req, res) => {
-    const { descricao, valor, vencimento } = req.body;
-    try {
-        const result = await pool.query(
-            'INSERT INTO public.contas_receber (descricao, valor, vencimento) VALUES ($1, $2, $3) RETURNING *',
-            [descricao, valor, vencimento]
-        );
-        res.json({ success: true, message: 'Conta a receber cadastrada com sucesso!', conta: result.rows[0] });
-    } catch (err) {
-        console.error('Erro ao cadastrar conta a receber:', err);
+        console.error('Erro ao buscar lançamentos:', err);
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
     }
 });
@@ -187,9 +168,9 @@ app.post('/contas-receber', async (req, res) => {
 // Rota para gerar relatório financeiro em PDF
 app.get('/relatorio-financeiro', async (req, res) => {
     try {
-        const lancamentos = await pool.query('SELECT * FROM public.tesouraria');
-        const contasPagar = await pool.query('SELECT * FROM public.contas_pagar');
-        const contasReceber = await pool.query('SELECT * FROM public.contas_receber');
+        const lancamentos = await pool.query('SELECT * FROM tesouraria');
+        const contasPagar = await pool.query('SELECT * FROM contas_pagar');
+        const contasReceber = await pool.query('SELECT * FROM contas_receber');
 
         const doc = new PDFDocument();
         res.setHeader('Content-Type', 'application/pdf');
@@ -220,6 +201,58 @@ app.get('/relatorio-financeiro', async (req, res) => {
         doc.end();
     } catch (err) {
         console.error('Erro ao gerar relatório financeiro:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para registrar uma venda
+app.post('/vendas', async (req, res) => {
+    const { cliente, produto, valor } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO vendas (cliente, produto, valor) VALUES ($1, $2, $3) RETURNING *',
+            [cliente, produto, valor]
+        );
+        res.json({ success: true, message: 'Venda registrada com sucesso!', venda: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao registrar venda:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para listar todas as vendas
+app.get('/vendas', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM vendas ORDER BY data DESC');
+        res.json({ success: true, vendas: result.rows });
+    } catch (err) {
+        console.error('Erro ao buscar vendas:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para gerar relatório de vendas em PDF
+app.get('/relatorio-vendas', async (req, res) => {
+    try {
+        const vendas = await pool.query('SELECT * FROM vendas ORDER BY data DESC');
+
+        const doc = new PDFDocument();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=relatorio-vendas.pdf');
+
+        doc.pipe(res);
+
+        doc.fontSize(16).text('Relatório de Vendas', { align: 'center' });
+        doc.moveDown();
+
+        doc.fontSize(12).text('Vendas Registradas:', { underline: true });
+        vendas.rows.forEach((venda, index) => {
+            doc.text(`${index + 1}. Cliente: ${venda.cliente}, Produto: ${venda.produto}, Valor: R$ ${venda.valor.toFixed(2)}, Data: ${venda.data.toLocaleString()}`);
+        });
+
+        doc.end();
+    } catch (err) {
+        console.error('Erro ao gerar relatório de vendas:', err);
         res.status(500).json({ success: false, message: 'Erro no servidor.' });
     }
 });
