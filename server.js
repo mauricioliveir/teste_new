@@ -139,7 +139,90 @@ app.get('/funcionarios', async (req, res) => {
     }
 });
 
+// Rota para lançamentos de tesouraria
+app.post('/tesouraria', async (req, res) => {
+    const { tipo, valor, descricao } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO public.tesouraria (tipo, valor, descricao) VALUES ($1, $2, $3) RETURNING *',
+            [tipo, valor, descricao]
+        );
+        res.json({ success: true, message: 'Lançamento realizado com sucesso!', lancamento: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao realizar lançamento:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
 
+// Rota para contas a pagar
+app.post('/contas-pagar', async (req, res) => {
+    const { descricao, valor, vencimento } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO public.contas_pagar (descricao, valor, vencimento) VALUES ($1, $2, $3) RETURNING *',
+            [descricao, valor, vencimento]
+        );
+        res.json({ success: true, message: 'Conta a pagar cadastrada com sucesso!', conta: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao cadastrar conta a pagar:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para contas a receber
+app.post('/contas-receber', async (req, res) => {
+    const { descricao, valor, vencimento } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO public.contas_receber (descricao, valor, vencimento) VALUES ($1, $2, $3) RETURNING *',
+            [descricao, valor, vencimento]
+        );
+        res.json({ success: true, message: 'Conta a receber cadastrada com sucesso!', conta: result.rows[0] });
+    } catch (err) {
+        console.error('Erro ao cadastrar conta a receber:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
+
+// Rota para gerar relatório financeiro em PDF
+app.get('/relatorio-financeiro', async (req, res) => {
+    try {
+        const lancamentos = await pool.query('SELECT * FROM public.tesouraria');
+        const contasPagar = await pool.query('SELECT * FROM public.contas_pagar');
+        const contasReceber = await pool.query('SELECT * FROM public.contas_receber');
+
+        const doc = new PDFDocument();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=relatorio-financeiro.pdf');
+
+        doc.pipe(res);
+
+        doc.fontSize(16).text('Relatório Financeiro', { align: 'center' });
+        doc.moveDown();
+
+        doc.fontSize(12).text('Lançamentos de Tesouraria:', { underline: true });
+        lancamentos.rows.forEach((lancamento, index) => {
+            doc.text(`${index + 1}. ${lancamento.tipo} - ${lancamento.descricao}: R$ ${lancamento.valor.toFixed(2)}`);
+        });
+
+        doc.moveDown();
+        doc.fontSize(12).text('Contas a Pagar:', { underline: true });
+        contasPagar.rows.forEach((conta, index) => {
+            doc.text(`${index + 1}. ${conta.descricao} - Vencimento: ${conta.vencimento}: R$ ${conta.valor.toFixed(2)}`);
+        });
+
+        doc.moveDown();
+        doc.fontSize(12).text('Contas a Receber:', { underline: true });
+        contasReceber.rows.forEach((conta, index) => {
+            doc.text(`${index + 1}. ${conta.descricao} - Vencimento: ${conta.vencimento}: R$ ${conta.valor.toFixed(2)}`);
+        });
+
+        doc.end();
+    } catch (err) {
+        console.error('Erro ao gerar relatório financeiro:', err);
+        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+    }
+});
 
 // Rota principal
 app.get('/', (req, res) => {

@@ -131,7 +131,7 @@
                 <p>Entradas: R$ <span id="entradas">0.00</span></p>
                 <p>Saídas: R$ <span id="saidas">0.00</span></p>
                 <p>Saldo Final: R$ <span id="saldo-final">0.00</span></p>
-                <button id="gerar-relatorio-financeiro">Gerar Relatório (PDF)</button>
+                <button id="gerar-relatorio-financeiro" type="button">Gerar Relatório (PDF)</button>
             </div>
 
             <div>
@@ -144,10 +144,11 @@
                     <label for="vencimento-pagar">Vencimento:</label>
                     <input type="date" id="vencimento-pagar" required><br>
                     <button type="submit">Cadastrar Conta a Pagar</button>
+                    <button id="gerar-relatorio-contas-pagar" type="button">Gerar Relatório (PDF)</button>
                 </form>
                 <h2>Contas Cadastradas</h2>
                 <ul id="lista-contas-pagar"></ul>
-                <button id="gerar-pdf-contas-a-pagar">Gerar PDF Contas a Pagar</button>
+                <button id="gerar-pdf-contas-a-pagar" type="button">Gerar PDF Contas a Pagar</button>
             </div>
 
             <div>
@@ -160,6 +161,7 @@
                     <label for="vencimento-receber">Vencimento:</label>
                     <input type="date" id="vencimento-receber" required><br>
                     <button type="submit">Cadastrar Conta a Receber</button>
+                    
                 </form>
                 <h2>Contas Cadastradas</h2>
                 <ul id="lista-contas-receber"></ul>

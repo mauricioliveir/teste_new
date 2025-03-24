@@ -9,9 +9,15 @@ document.addEventListener("DOMContentLoaded", function () {
         initCPFValidation();
         initFormCompletionCheck();
         initEstoque();
-        initContasReceber();
-        initRelatorios();
         atualizarFluxoCaixa();
+
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function () {
+                sessionStorage.removeItem('isLoggedIn');
+                window.location.href = '/index.html';
+            });
+        }
     }
 });
 
@@ -140,7 +146,8 @@ function initCPFValidation() {
                 errorMessage.textContent = "";
             }
         } else {
-            errorMessage.textContent = "";
+            errorMessage.textContent = "CPF sem os 11 digitos! Por favor, insira um CPF válido.";
+            errorMessage.style.color = "red";
         }
     });
 }
@@ -185,5 +192,63 @@ function initFormCompletionCheck() {
         field.addEventListener('input', checkFormCompletion);
     });
 
-    checkFormCompletion(); // Verifica ao carregar a página
+    checkFormCompletion();
+}
+
+// Função para enviar dados de tesouraria
+document.getElementById('tesouraria-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const tipo = document.getElementById('tipo').value;
+    const valor = parseFloat(document.getElementById('valor').value);
+    const descricao = document.getElementById('descricao').value;
+
+    try {
+        const response = await fetch('/tesouraria', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tipo, valor, descricao })
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Lançamento realizado com sucesso!');
+            atualizarFluxoCaixa();
+        } else {
+            alert('Erro ao realizar lançamento.');
+        }
+    } catch (err) {
+        console.error('Erro ao enviar dados:', err);
+    }
+});
+
+// Função para gerar relatório financeiro em PDF
+document.getElementById('gerar-relatorio-financeiro').addEventListener('click', () => {
+    window.location.href = '/relatorio-financeiro';
+});
+
+// Função para atualizar o fluxo de caixa
+async function atualizarFluxoCaixa() {
+    try {
+        const response = await fetch('/tesouraria');
+        const data = await response.json();
+        const lancamentos = data.lancamentos;
+
+        let entradas = 0;
+        let saidas = 0;
+
+        lancamentos.forEach(lancamento => {
+            if (lancamento.tipo === 'entrada') {
+                entradas += lancamento.valor;
+            } else {
+                saidas += lancamento.valor;
+            }
+        });
+
+        const saldoFinal = entradas - saidas;
+
+        document.getElementById('entradas').textContent = entradas.toFixed(2);
+        document.getElementById('saidas').textContent = saidas.toFixed(2);
+        document.getElementById('saldo-final').textContent = saldoFinal.toFixed(2);
+    } catch (err) {
+        console.error('Erro ao atualizar fluxo de caixa:', err);
+    }
 }
