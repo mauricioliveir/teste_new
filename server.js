@@ -4,8 +4,9 @@ const { Pool } = require('pg');
 const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -188,6 +189,61 @@ app.get("/relatorio-financeiro", async (req, res) => {
 
         const saldoFinal = entradas - saidas;
         res.json({ success: true, entradas, saidas, saldoFinal, lancamentos: result.rows });
+    } catch (err) {
+        console.error("Erro ao gerar relatório:", err);
+        res.status(500).json({ success: false, message: "Erro ao gerar relatório" });
+    }
+});
+
+// Rota para gerar relatório financeiro em PDF
+app.get("/relatorio-financeiro", async (req, res) => {
+    try {
+        const result = await pool.query("SELECT * FROM tesouraria ORDER BY data DESC");
+
+        let entradas = 0;
+        let saidas = 0;
+
+        result.rows.forEach((item) => {
+            if (item.tipo === "entrada") {
+                entradas += parseFloat(item.valor);
+            } else {
+                saidas += parseFloat(item.valor);
+            }
+        });
+
+        const saldoFinal = entradas - saidas;
+
+        // Criar o documento PDF
+        const doc = new PDFDocument();
+        const filePath = path.join(__dirname, "relatorio-financeiro.pdf");
+        const stream = fs.createWriteStream(filePath);
+        doc.pipe(stream);
+
+        // Cabeçalho do relatório
+        doc.fontSize(18).text("Relatório Financeiro", { align: "center" }).moveDown();
+        doc.fontSize(12).text(`Entradas: R$ ${entradas.toFixed(2)}`);
+        doc.text(`Saídas: R$ ${saidas.toFixed(2)}`);
+        doc.text(`Saldo Final: R$ ${saldoFinal.toFixed(2)}`).moveDown();
+
+        // Listar lançamentos
+        doc.fontSize(14).text("Lançamentos:", { underline: true }).moveDown();
+        result.rows.forEach((item) => {
+            doc.fontSize(12).text(
+                `${item.data}: ${item.tipo.toUpperCase()} - R$ ${parseFloat(item.valor).toFixed(2)} - ${item.descricao}`
+            );
+        });
+
+        doc.end();
+
+        // Enviar o PDF para o frontend
+        stream.on("finish", () => {
+            res.sendFile(filePath, (err) => {
+                if (err) {
+                    console.error("Erro ao enviar o PDF:", err);
+                    res.status(500).send("Erro ao gerar PDF");
+                }
+            });
+        });
     } catch (err) {
         console.error("Erro ao gerar relatório:", err);
         res.status(500).json({ success: false, message: "Erro ao gerar relatório" });
