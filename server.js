@@ -139,69 +139,58 @@ app.get('/funcionarios', async (req, res) => {
     }
 });
 
-// Rota para lançamentos de tesouraria
-app.post('/tesouraria', async (req, res) => {
+// Rota para adicionar um lançamento financeiro
+app.post("/tesouraria", async (req, res) => {
     const { tipo, valor, descricao } = req.body;
+    
+    if (!tipo || isNaN(valor) || valor <= 0 || !descricao) {
+        return res.status(400).json({ success: false, message: "Dados inválidos" });
+    }
+
     try {
         const result = await pool.query(
-            'INSERT INTO tesouraria (tipo, valor, descricao) VALUES ($1, $2, $3) RETURNING *',
+            "INSERT INTO tesouraria (tipo, valor, descricao) VALUES ($1, $2, $3) RETURNING *",
             [tipo, valor, descricao]
         );
-        res.json({ success: true, message: 'Lançamento realizado com sucesso!', lancamento: result.rows[0] });
+        res.json({ success: true, data: result.rows[0] });
     } catch (err) {
-        console.error('Erro ao realizar lançamento:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+        console.error("Erro ao inserir dados:", err);
+        res.status(500).json({ success: false, message: "Erro interno do servidor" });
     }
 });
 
-// Rota para listar lançamentos de tesouraria
-app.get('/tesouraria', async (req, res) => {
+// Rota para buscar todos os lançamentos e calcular fluxo de caixa
+app.get("/tesouraria", async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM tesouraria');
+        const result = await pool.query("SELECT * FROM tesouraria ORDER BY data DESC");
         res.json({ success: true, lancamentos: result.rows });
     } catch (err) {
-        console.error('Erro ao buscar lançamentos:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+        console.error("Erro ao buscar dados:", err);
+        res.status(500).json({ success: false, message: "Erro ao buscar dados" });
     }
 });
 
-// Rota para gerar relatório financeiro em PDF
-app.get('/relatorio-financeiro', async (req, res) => {
+// Rota para gerar relatório financeiro
+app.get("/relatorio-financeiro", async (req, res) => {
     try {
-        const lancamentos = await pool.query('SELECT * FROM tesouraria');
-        const contasPagar = await pool.query('SELECT * FROM contas_pagar');
-        const contasReceber = await pool.query('SELECT * FROM contas_receber');
+        const result = await pool.query("SELECT * FROM tesouraria");
 
-        const doc = new PDFDocument();
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=relatorio-financeiro.pdf');
+        let entradas = 0;
+        let saidas = 0;
 
-        doc.pipe(res);
-
-        doc.fontSize(16).text('Relatório Financeiro', { align: 'center' });
-        doc.moveDown();
-
-        doc.fontSize(12).text('Lançamentos de Tesouraria:', { underline: true });
-        lancamentos.rows.forEach((lancamento, index) => {
-            doc.text(`${index + 1}. ${lancamento.tipo} - ${lancamento.descricao}: R$ ${lancamento.valor.toFixed(2)}`);
+        result.rows.forEach((item) => {
+            if (item.tipo === "entrada") {
+                entradas += parseFloat(item.valor);
+            } else {
+                saidas += parseFloat(item.valor);
+            }
         });
 
-        doc.moveDown();
-        doc.fontSize(12).text('Contas a Pagar:', { underline: true });
-        contasPagar.rows.forEach((conta, index) => {
-            doc.text(`${index + 1}. ${conta.descricao} - Vencimento: ${conta.vencimento}: R$ ${conta.valor.toFixed(2)}`);
-        });
-
-        doc.moveDown();
-        doc.fontSize(12).text('Contas a Receber:', { underline: true });
-        contasReceber.rows.forEach((conta, index) => {
-            doc.text(`${index + 1}. ${conta.descricao} - Vencimento: ${conta.vencimento}: R$ ${conta.valor.toFixed(2)}`);
-        });
-
-        doc.end();
+        const saldoFinal = entradas - saidas;
+        res.json({ success: true, entradas, saidas, saldoFinal, lancamentos: result.rows });
     } catch (err) {
-        console.error('Erro ao gerar relatório financeiro:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
+        console.error("Erro ao gerar relatório:", err);
+        res.status(500).json({ success: false, message: "Erro ao gerar relatório" });
     }
 });
 
