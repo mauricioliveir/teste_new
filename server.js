@@ -1,12 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
-const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
-const path = require("path");
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
