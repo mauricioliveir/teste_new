@@ -223,7 +223,28 @@ app.get("/relatorio-financeiro", async (req, res) => {
            .text('RELATÓRIO FINANCEIRO', 130, 45);
 
         // [4] Resumo Financeiro (mantido igual)
-        // ... (código do resumo mantido igual)
+        doc.rect(40, 90, 515, 70)
+        .fill(colors.light)
+        .stroke(colors.primary);
+
+     doc.fontSize(12)
+        .fillColor(colors.primary)
+        .text('RESUMO FINANCEIRO', 50, 100, { underline: true });
+
+     const colWidth = 150;
+     doc.fontSize(10)
+        .text('Total Entradas', 50, 120)
+        .text('Total Saídas', 50 + colWidth, 120)
+        .text('Saldo Final', 50 + colWidth * 2, 120);
+
+     doc.fontSize(12)
+        .fillColor(colors.success)
+        .text(`R$ ${totalEntradas.toFixed(2)}`, 50, 135)
+        .fillColor(colors.danger)
+        .text(`R$ ${totalSaidas.toFixed(2)}`, 50 + colWidth, 135)
+        .fillColor(saldoFinal >= 0 ? colors.success : colors.danger)
+        .text(`R$ ${Math.abs(saldoFinal).toFixed(2)}`, 50 + colWidth * 2, 135);
+
 
         // [5] Tabela de Lançamentos (com centralização matemática)
         const tableTop = 180;
@@ -236,31 +257,38 @@ app.get("/relatorio-financeiro", async (req, res) => {
            .text(titleText, centerX, tableTop, { underline: true })
            .moveDown(1);
 
-        if (lancamentos.length > 0) {
-            // ... (código da tabela mantido igual)
+           if (lancamentos.length > 0) {
+            // Cabeçalho da tabela
+            doc.font('Helvetica-Bold')
+               .fontSize(10)
+               .fillColor('#fff')
+               .rect(40, tableTop + 30, 515, 20)
+               .fill(colors.primary);
 
-            // [6] Cálculo DINÂMICO da posição do rodapé
-            const footerText = `© ${new Date().getFullYear()} Sistema de Tesouraria - Gerado em ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`;
-            const footerY = Math.max(doc.y + 20, doc.page.height - 30); // Garante que fica no final
-            
-            doc.fontSize(9)
-               .fillColor('#666')
-               .text(footerText, { 
-                   align: 'center',
-                   y: footerY,
-                   width: doc.page.width - 80
-               });
-        } else {
-            // [7] Rodapé para quando não há lançamentos
-            const footerText = `© ${new Date().getFullYear()} Sistema de Tesouraria - Gerado em ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`;
-            
-            doc.fontSize(9)
-               .fillColor('#666')
-               .text(footerText, { 
-                   align: 'center',
-                   y: doc.page.height - 30,
-                   width: doc.page.width - 80
-               });
+            doc.fillColor('#ffffff')
+               .text('Data', 45, tableTop + 35, { width: 100 })
+               .text('Tipo', 155, tableTop + 35, { width: 70, align: "center" })
+               .text('Descrição', 235, tableTop + 35, { width: 200 })
+               .text('Valor (R$)', 445, tableTop + 35, { width: 100, align: "right" });
+
+            // Linhas da tabela
+            let y = tableTop + 50;
+            lancamentos.forEach((item, index) => {
+                doc.rect(40, y, 515, 20)
+                   .fill(index % 2 === 0 ? '#fff' : colors.light);
+
+                doc.fontSize(9)
+                   .fillColor(colors.primary)
+                   .text(item.data, 45, y + 5, { width: 100 })
+                   .fillColor(item.isEntrada ? colors.success : colors.danger)
+                   .text(item.tipo, 155, y + 5, { width: 70, align: "center" })
+                   .fillColor(colors.primary)
+                   .text(item.descricao, 235, y + 5, { width: 200 })
+                   .fillColor(item.isEntrada ? colors.success : colors.danger)
+                   .text(item.valor, 445, y + 5, { width: 100, align: "right" });
+
+                y += 20;
+            });
         }
 
         doc.end();
