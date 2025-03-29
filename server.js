@@ -175,10 +175,9 @@ app.get("/tesouraria", async (req, res) => {
 // Rota para gerar relatório financeiro em PDF
 app.get("/relatorio-financeiro", async (req, res) => {
     try {
-        // 1. Consulta ao banco de dados
+        // 1. Consulta ao banco e processamento (mantido igual)
         const result = await pool.query("SELECT * FROM tesouraria ORDER BY data DESC");
         
-        // 2. Processamento dos dados
         let lancamentos = [];
         let totalEntradas = 0;
         let totalSaidas = 0;
@@ -199,19 +198,17 @@ app.get("/relatorio-financeiro", async (req, res) => {
 
         const saldoFinal = totalEntradas - totalSaidas;
 
-        // 3. Configuração do PDF
+        // 2. Configuração do PDF
         const doc = new PDFDocument({
             margin: 40,
             size: 'A4',
             font: 'Helvetica'
         });
 
-        // 4. Configuração do download
         res.setHeader('Content-Disposition', `attachment; filename="relatorio-financeiro-${moment().format('YYYY-MM-DD')}.pdf"`);
         res.setHeader('Content-Type', 'application/pdf');
         doc.pipe(res);
 
-        // 5. Cores
         const colors = {
             primary: '#2c3e50',
             success: '#27ae60',
@@ -219,13 +216,13 @@ app.get("/relatorio-financeiro", async (req, res) => {
             light: '#f5f5f5'
         };
 
-        // 6. Cabeçalho (sem data)
+        // 3. Cabeçalho (sem data)
         doc.image(path.join(__dirname, 'public', 'assets', 'senac-logo-0.png'), 40, 30, { width: 80 })
            .fontSize(18)
            .fillColor(colors.primary)
            .text('RELATÓRIO FINANCEIRO', 130, 45);
 
-        // 7. Resumo Financeiro
+        // 4. Resumo Financeiro (mantido igual)
         doc.rect(40, 90, 515, 70)
            .fill(colors.light)
            .stroke(colors.primary);
@@ -248,26 +245,27 @@ app.get("/relatorio-financeiro", async (req, res) => {
            .fillColor(saldoFinal >= 0 ? colors.success : colors.danger)
            .text(`R$ ${Math.abs(saldoFinal).toFixed(2)}`, 50 + colWidth * 2, 135);
 
-        // 8. Tabela de Lançamentos
+        // 5. Tabela de Lançamentos (com centralização matemática)
         const tableTop = 180;
+        
+        // Cálculo exato para centralização
+        const titleText = 'LANÇAMENTOS';
+        const titleWidth = doc.widthOfString(titleText);
+        const centerX = (doc.page.width - titleWidth) / 2;
+        
         doc.fontSize(14)
            .fillColor(colors.primary)
-           .text('LANÇAMENTOS', { 
-               align: 'center',
-               underline: true,
-               lineGap: 10,
-               y: tableTop
-           });
+           .text(titleText, centerX, tableTop, { underline: true })
+           .moveDown(1);
 
         if (lancamentos.length > 0) {
-            // Cabeçalho da tabela (agora visível)
+            // Cabeçalho da tabela
             doc.font('Helvetica-Bold')
                .fontSize(10)
                .fillColor('#fff')
                .rect(40, tableTop + 30, 515, 20)
                .fill(colors.primary);
 
-            // Texto do cabeçalho (branco sobre fundo escuro)
             doc.fillColor('#ffffff')
                .text('Data', 45, tableTop + 35, { width: 100 })
                .text('Tipo', 155, tableTop + 35, { width: 70, align: "center" })
@@ -292,21 +290,33 @@ app.get("/relatorio-financeiro", async (req, res) => {
 
                 y += 20;
             });
+            
+            // 6. Rodapé na ÚLTIMA LINHA (cálculo dinâmico)
+            const footerY = Math.max(y + 20, doc.page.height - 40);
+            const footerText = `© ${new Date().getFullYear()} Sistema de Tesouraria - Relatório gerado em ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`;
+            
+            doc.fontSize(9)
+               .fillColor('#666')
+               .text(footerText, { 
+                   align: 'center',
+                   y: footerY,
+                   width: 515
+               });
         } else {
             doc.fontSize(10)
                .text('Nenhum lançamento registrado', { align: 'center', y: tableTop + 50 });
+            
+            // Rodapé quando não há lançamentos
+            const footerText = `© ${new Date().getFullYear()} Sistema de Tesouraria - Relatório gerado em ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`;
+            
+            doc.fontSize(9)
+               .fillColor('#666')
+               .text(footerText, { 
+                   align: 'center',
+                   y: doc.page.height - 40,
+                   width: 515
+               });
         }
-
-        // 9. Rodapé (na última linha da página)
-        const footerText = `© ${new Date().getFullYear()} Sistema de Tesouraria - Relatório gerado automaticamente em ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`;
-        
-        doc.fontSize(9)
-           .fillColor('#666')
-           .text(footerText, { 
-               align: 'center',
-               y: doc.page.height - 40, // Posiciona no final da página
-               width: 515
-           });
 
         doc.end();
     } catch (err) {
