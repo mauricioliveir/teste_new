@@ -170,31 +170,6 @@ app.get("/tesouraria", async (req, res) => {
     }
 });
 
-// Rota para gerar relatório financeiro
-app.get("/relatorio-financeiro", async (req, res) => {
-    try {
-        const result = await pool.query("SELECT * FROM tesouraria");
-
-        let entradas = 0;
-        let saidas = 0;
-
-        result.rows.forEach((item) => {
-            if (item.tipo === "entrada") {
-                entradas += parseFloat(item.valor);
-            } else {
-                saidas += parseFloat(item.valor);
-            }
-        });
-
-        const saldoFinal = entradas - saidas;
-        res.json({ success: true, entradas, saidas, saldoFinal, lancamentos: result.rows });
-    } catch (err) {
-        console.error("Erro ao gerar relatório:", err);
-        res.status(500).json({ success: false, message: "Erro ao gerar relatório" });
-    }
-});
-
-// Rota para gerar relatório financeiro em PDF
 app.get("/relatorio-financeiro", async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM tesouraria ORDER BY data DESC");
@@ -214,7 +189,7 @@ app.get("/relatorio-financeiro", async (req, res) => {
 
         // Criar o documento PDF
         const doc = new PDFDocument();
-        const filePath = path.join(__dirname, "relatorio-financeiro.pdf");
+        const filePath = path.join(__dirname, "public", "relatorio-financeiro.pdf");
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
@@ -234,9 +209,9 @@ app.get("/relatorio-financeiro", async (req, res) => {
 
         doc.end();
 
-        // Enviar o PDF para o frontend
+        // Espera a finalização da escrita no arquivo antes de enviá-lo
         stream.on("finish", () => {
-            res.sendFile(filePath, (err) => {
+            res.download(filePath, "relatorio-financeiro.pdf", (err) => {
                 if (err) {
                     console.error("Erro ao enviar o PDF:", err);
                     res.status(500).send("Erro ao gerar PDF");
