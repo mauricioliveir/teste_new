@@ -177,76 +177,88 @@ app.get("/relatorio-financeiro", async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM tesouraria ORDER BY data DESC");
 
-        let entradas = 0;
-        let saidas = 0;
+        let entradas = [];
+        let saidas = [];
+        let totalEntradas = 0;
+        let totalSaidas = 0;
 
         result.rows.forEach((item) => {
+            const dataFormatada = moment(item.data)
+                .tz("America/Sao_Paulo")
+                .format("DD/MM/YYYY HH:mm:ss");
+
             if (item.tipo === "entrada") {
-                entradas += parseFloat(item.valor);
+                totalEntradas += parseFloat(item.valor);
+                entradas.push({ ...item, data: dataFormatada });
             } else {
-                saidas += parseFloat(item.valor);
+                totalSaidas += parseFloat(item.valor);
+                saidas.push({ ...item, data: dataFormatada });
             }
         });
 
-        const saldoFinal = entradas - saidas;
+        const saldoFinal = totalEntradas - totalSaidas;
 
-        // Criar o documento PDF
-        const doc = new PDFDocument();
-        const filePath = path.join(__dirname, "public", "relatorio-financeiro.pdf");
-        const stream = fs.createWriteStream(filePath);
-        doc.pipe(stream);
+        // Criar documento PDF
+        const doc = new PDFDocument({ margin: 50 });
+        res.setHeader("Content-Disposition", "inline; filename=relatorio-financeiro.pdf");
+        res.setHeader("Content-Type", "application/pdf");
 
-        // Cabeçalho com logo e título
-        const logoPath = path.join(__dirname, "public", "assets", "senac-logo-0.png");
-        doc.image(logoPath, { width: 120, align: 'center' });
-        doc.fontSize(18).text("Relatório de Tesouraria", { align: "center" }).moveDown();
+        doc.pipe(res);
+
+        // Adicionar um logo (altere o caminho conforme necessário)
+        const logoPath = path.join(__dirname, "logo.png"); // Certifique-se de ter um logo na pasta
+        if (fs.existsSync(logoPath)) {
+            doc.image(logoPath, 50, 50, { width: 100 });
+        }
+
+        // Título
+        doc
+            .fontSize(20)
+            .text("Relatório de Tesouraria", { align: "center" })
+            .moveDown(2);
 
         // Resumo financeiro
-        doc.fontSize(12).text(`Entradas: R$ ${entradas.toFixed(2)}`);
-        doc.text(`Saídas: R$ ${saidas.toFixed(2)}`);
-        doc.text(`Saldo Final: R$ ${saldoFinal.toFixed(2)}`).moveDown();
+        doc.fontSize(14).text(`Entradas: R$ ${totalEntradas.toFixed(2)}`);
+        doc.text(`Saídas: R$ ${totalSaidas.toFixed(2)}`);
+        doc.text(`Saldo Final: R$ ${saldoFinal.toFixed(2)}`).moveDown(2);
 
-        // Definir as larguras das colunas da tabela
-        const colWidths = [120, 80, 200, 80]; // Definição de largura das colunas: Data, Tipo, Descrição, Valor
+        // Função para desenhar tabela
+        function desenharTabela(doc, title, data) {
+            doc
+                .fontSize(16)
+                .text(title, { underline: true })
+                .moveDown(1);
 
-        // Cabeçalho da tabela
-        doc.fontSize(12).text("Lançamentos:", { underline: true }).moveDown();
-
-        // Adicionar as linhas da tabela
-        const table = [];
-        result.rows.forEach((item) => {
-            table.push([
-                moment(item.data).tz('America/Sao_Paulo').format('DD/MM/YYYY HH:mm:ss'),  // Formatação da data
-                item.tipo.toUpperCase(),
-                item.descricao,
-                `R$ ${parseFloat(item.valor).toFixed(2)}`
-            ]);
-        });
-
-        // Gerar a tabela no PDF
-        doc.table(table, {
-            columnsSize: colWidths,  // Passando as larguras das colunas
-            padding: 5,  // Ajuste de padding das células
-            columnSpacing: 10,  // Espaçamento entre as colunas
-            prepareHeader: () => {
-                doc.font('Helvetica-Bold').fontSize(12);
-            },
-            prepareRow: (row, i) => {
-                doc.font('Helvetica').fontSize(10);
+            if (data.length === 0) {
+                doc.text("Nenhum lançamento registrado").moveDown();
+                return;
             }
-        });
+
+            const colX = [50, 170, 280, 450];
+            doc.fontSize(12);
+
+            // Cabeçalho da tabela
+            doc.text("Data", colX[0]).text("Tipo", colX[1]).text("Valor", colX[2]).text("Descrição", colX[3]).moveDown(0.5);
+            doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke().moveDown(0.5);
+
+            // Conteúdo da tabela
+            data.forEach((item) => {
+                doc
+                    .text(item.data, colX[0])
+                    .text(item.tipo.toUpperCase(), colX[1])
+                    .text(`R$ ${parseFloat(item.valor).toFixed(2)}`, colX[2])
+                    .text(item.descricao, colX[3])
+                    .moveDown(0.5);
+            });
+
+            doc.moveDown(1);
+        }
+
+        // Gerar tabelas de Entradas e Saídas
+        desenharTabela(doc, "Entradas", entradas);
+        desenharTabela(doc, "Saídas", saidas);
 
         doc.end();
-
-        // Enviar o PDF para o frontend
-        stream.on("finish", () => {
-            res.download(filePath, "relatorio-financeiro.pdf", (err) => {
-                if (err) {
-                    console.error("Erro ao enviar o PDF:", err);
-                    res.status(500).send("Erro ao gerar PDF");
-                }
-            });
-        });
     } catch (err) {
         console.error("Erro ao gerar relatório:", err);
         res.status(500).json({ success: false, message: "Erro ao gerar relatório" });
