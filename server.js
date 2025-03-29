@@ -7,6 +7,7 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require('path');
 const moment = require("moment-timezone");
+const { addTable } = require('pdfkit-table')
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -196,7 +197,7 @@ app.get("/relatorio-financeiro", async (req, res) => {
         doc.pipe(stream);
 
         // Cabeçalho com logo e título
-        const logoPath = path.join(__dirname, 'assets', 'senac-logo-0.png');
+        const logoPath = path.join(__dirname, "public", "assets", "senac-logo-0.png");
         doc.image(logoPath, { width: 120, align: 'center' });
         doc.fontSize(18).text("Relatório de Tesouraria", { align: "center" }).moveDown();
 
