@@ -212,6 +212,8 @@ document.getElementById('tesouraria-form').addEventListener('submit', async (e) 
         if (data.success) {
             alert('Lançamento realizado com sucesso!');
             atualizarFluxoCaixa();
+            document.getElementById('valor').value = '';
+            document.getElementById('descricao').value = '';
         } else {
             alert('Erro ao realizar lançamento.');
         }
@@ -252,6 +254,8 @@ async function atualizarFluxoCaixa() {
 document.getElementById("gerar-relatorio-financeiro").addEventListener("click", () => {
     window.open("/relatorio-financeiro", "_blank");
 });
+
+
 
 // Inicializa o fluxo de caixa ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
