@@ -175,28 +175,19 @@ app.get("/tesouraria", async (req, res) => {
 // Rota para gerar relatório financeiro em PDF
 app.get("/relatorio-financeiro", async (req, res) => {
     try {
-        // 1. Consulta ao banco de dados
+        // [1] Consulta e processamento dos dados (mantido igual)
         const result = await pool.query("SELECT * FROM tesouraria ORDER BY data DESC");
-
-        // 2. Processamento dos dados
         let lancamentos = [];
         let totalEntradas = 0;
         let totalSaidas = 0;
 
         result.rows.forEach((item) => {
             const valor = parseFloat(item.valor);
-            const dataFormatada = moment(item.data)
-                .tz("America/Sao_Paulo")
-                .format("DD/MM/YYYY - HH:mm");
-
-            if (item.tipo === "entrada") {
-                totalEntradas += valor;
-            } else {
-                totalSaidas += valor;
-            }
+            if (item.tipo === "entrada") totalEntradas += valor;
+            else totalSaidas += valor;
 
             lancamentos.push({
-                data: dataFormatada,
+                data: moment(item.data).tz("America/Sao_Paulo").format("DD/MM/YYYY - HH:mm"),
                 tipo: item.tipo.toUpperCase(),
                 descricao: item.descricao,
                 valor: valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
@@ -206,7 +197,7 @@ app.get("/relatorio-financeiro", async (req, res) => {
 
         const saldoFinal = totalEntradas - totalSaidas;
 
-        // 3. Configuração do PDF
+        // [2] Configuração do PDF
         const doc = new PDFDocument({ 
             margin: 30,
             size: 'A4',
@@ -214,22 +205,20 @@ app.get("/relatorio-financeiro", async (req, res) => {
             font: 'Helvetica'
         });
 
-        // Configura para download automático
-        const fileName = `relatorio-financeiro-${moment().format('DD-MM-YYYY')}.pdf`;
-        res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+        // [3] Configura headers para download
+        res.setHeader("Content-Disposition", `attachment; filename="relatorio-financeiro-${moment().format('DD-MM-YYYY')}.pdf"`);
         res.setHeader("Content-Type", "application/pdf");
         doc.pipe(res);
 
-        // 4. Cores e estilos
+        // [4] Cores (mantido igual)
         const colors = {
             primary: '#2c3e50',
             success: '#27ae60',
             danger: '#e74c3c',
-            light: '#f8f9fa',
-            text: '#333333'
+            light: '#f8f9fa'
         };
 
-        // 5. Cabeçalho (com logo)
+        // [5] Cabeçalho com logo (simplificado)
         const logoPath = path.join(__dirname, "public", "assets", "senac-logo-0.png");
         if (fs.existsSync(logoPath)) {
             doc.image(logoPath, 30, 20, { width: 80 });
@@ -241,30 +230,20 @@ app.get("/relatorio-financeiro", async (req, res) => {
                align: "right",
                width: 400,
                lineGap: 5
-           })
-           .moveDown(0.2);
+           });
 
-        doc.fontSize(8)
-           .fillColor('#7f8c8d')
-           .text(`Emitido em: ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`, {
-               align: "right",
-               width: 400
-           })
-           .moveDown(1.5);
-
-        // 6. Resumo Financeiro (card)
-        const resumoY = doc.y;
+        // [6] Resumo Financeiro (otimizado)
+        const resumoY = doc.y + 10;
         doc.roundedRect(30, resumoY, 535, 60, 5)
            .fill(colors.light)
            .stroke(colors.primary);
 
+        const colWidth = 170;
         doc.fontSize(10)
            .fillColor(colors.primary)
            .font('Helvetica-Bold')
-           .text("RESUMO FINANCEIRO", 40, resumoY + 10);
-
-        const colWidth = 170;
-        doc.font('Helvetica')
+           .text("RESUMO FINANCEIRO", 40, resumoY + 10)
+           .font('Helvetica')
            .text("Total Entradas", 40, resumoY + 25)
            .text("Total Saídas", 40 + colWidth, resumoY + 25)
            .text("Saldo Final", 40 + colWidth * 2, resumoY + 25);
@@ -276,102 +255,74 @@ app.get("/relatorio-financeiro", async (req, res) => {
            .text(`R$ ${totalSaidas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 40 + colWidth, resumoY + 38)
            .fillColor(saldoFinal >= 0 ? colors.success : colors.danger)
            .text(`R$ ${Math.abs(saldoFinal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 40 + colWidth * 2, resumoY + 38)
-           .text(saldoFinal >= 0 ? "(Positivo)" : "(Negativo)", 40 + colWidth * 2, resumoY + 52, {
-               fontSize: 8
-           });
+           .text(saldoFinal >= 0 ? "(Positivo)" : "(Negativo)", 40 + colWidth * 2, resumoY + 52, { fontSize: 8 });
 
-        doc.y = resumoY + 70;
-
-        // 7. Tabela de Lançamentos (ajustada)
-        doc.fontSize(12)
+        // [7] Tabela de Lançamentos (com centralização perfeita)
+        const tableTop = resumoY + 90;
+        
+        // Título centralizado com cálculo matemático preciso
+        const titleWidth = doc.widthOfString("LANÇAMENTOS");
+        doc.fontSize(14)
            .fillColor(colors.primary)
-           .text("LANÇAMENTOS", { 
-               align: "center", // Centralizado
-               underline: true 
+           .text("LANÇAMENTOS", (doc.page.width - titleWidth) / 2, tableTop, {
+               underline: true
            })
-           .moveDown(0.5);
+           .moveDown(0.8);
 
-        if (lancamentos.length === 0) {
-            doc.fontSize(10)
-               .text("Nenhum lançamento registrado no período")
-               .moveDown();
-        } else {
-            // Configurações das colunas (sem emojis)
+        if (lancamentos.length > 0) {
+            // Configurações das colunas
             const columns = [
-                { header: "Data", key: "data", width: 100, align: "left" },
-                { header: "Tipo", key: "tipo", width: 70, align: "center" },
-                { header: "Descrição", key: "descricao", width: 240, align: "left" },
-                { header: "Valor (R$)", key: "valor", width: 80, align: "right" }
+                { header: "Data", width: 100 },
+                { header: "Tipo", width: 70 },
+                { header: "Descrição", width: 240 },
+                { header: "Valor (R$)", width: 80 }
             ];
-
-            const rowHeight = 20;
-            const tableTop = doc.y;
-            const tableLeft = 30;
 
             // Cabeçalho da tabela
             doc.font('Helvetica-Bold')
                .fontSize(10)
                .fillColor('#ffffff')
-               .rect(tableLeft, tableTop, 535, rowHeight)
+               .rect(30, doc.y, 535, 20)
                .fill(colors.primary);
 
-            let x = tableLeft;
-            columns.forEach(column => {
+            let x = 30;
+            columns.forEach(col => {
                 doc.fillColor('#ffffff')
-                   .text(column.header, x + 5, tableTop + 5, {
-                       width: column.width,
-                       align: column.align
+                   .text(col.header, x + 5, doc.y + 5, {
+                       width: col.width,
+                       align: col.align || "left"
                    });
-                x += column.width;
+                x += col.width;
             });
+            doc.y += 20;
 
             // Linhas da tabela
-            let y = tableTop + rowHeight;
-            lancamentos.forEach((item, index) => {
-                const rowColor = index % 2 === 0 ? '#ffffff' : colors.light;
-                
-                doc.rect(tableLeft, y, 535, rowHeight)
-                   .fill(rowColor);
+            lancamentos.forEach((item, i) => {
+                doc.rect(30, doc.y, 535, 20)
+                   .fill(i % 2 === 0 ? '#ffffff' : colors.light);
 
-                // Data
                 doc.fontSize(9)
-                   .fillColor(colors.text)
-                   .text(item.data, tableLeft + 5, y + 5, {
-                       width: columns[0].width,
-                       align: columns[0].align
-                   });
+                   .fillColor(colors.primary)
+                   .text(item.data, 35, doc.y + 5, { width: 100 })
+                   .fillColor(item.isEntrada ? colors.success : colors.danger)
+                   .text(item.tipo, 135, doc.y + 5, { width: 70, align: "center" })
+                   .fillColor(colors.primary)
+                   .text(item.descricao, 210, doc.y + 5, { width: 240 })
+                   .fillColor(item.isEntrada ? colors.success : colors.danger)
+                   .text(item.valor, 455, doc.y + 5, { width: 80, align: "right" });
 
-                // Tipo
-                doc.fillColor(item.isEntrada ? colors.success : colors.danger)
-                   .text(item.tipo, tableLeft + columns[0].width + 5, y + 5, {
-                       width: columns[1].width,
-                       align: columns[1].align
-                   });
-
-                // Descrição
-                doc.fillColor(colors.text)
-                   .text(item.descricao, tableLeft + columns[0].width + columns[1].width + 5, y + 5, {
-                       width: columns[2].width,
-                       align: columns[2].align
-                   });
-
-                // Valor
-                doc.fillColor(item.isEntrada ? colors.success : colors.danger)
-                   .text(item.valor, tableLeft + columns[0].width + columns[1].width + columns[2].width + 5, y + 5, {
-                       width: columns[3].width,
-                       align: columns[3].align
-                   });
-
-                y += rowHeight;
+                doc.y += 20;
             });
-
-            doc.y = y + 15;
+        } else {
+            doc.fontSize(10)
+               .text("Nenhum lançamento registrado", { align: "center" });
         }
 
-        // 8. Rodapé
+        // [8] Rodapé com data de emissão
+        const footerText = `© Sistema de Tesouraria - Relatório gerado automaticamente em ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`;
         doc.fontSize(8)
            .fillColor('#7f8c8d')
-           .text("© Sistema de Tesouraria - Relatório gerado automaticamente", 30, doc.page.height - 30, {
+           .text(footerText, 30, doc.page.height - 40, {
                width: 535,
                align: "center"
            });
