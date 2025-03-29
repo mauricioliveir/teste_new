@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require('path');
+const moment = require("moment-timezone");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -170,51 +171,95 @@ app.get("/tesouraria", async (req, res) => {
     }
 });
 
+// Rota para gerar relatório financeiro em PDF
 app.get("/relatorio-financeiro", async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM tesouraria ORDER BY data DESC");
 
-        let entradas = 0;
-        let saidas = 0;
+        let entradas = [];
+        let saidas = [];
+        let totalEntradas = 0;
+        let totalSaidas = 0;
 
         result.rows.forEach((item) => {
+            const dataFormatada = moment(item.data)
+                .tz("America/Sao_Paulo")
+                .format("DD/MM/YYYY HH:mm:ss");
+
             if (item.tipo === "entrada") {
-                entradas += parseFloat(item.valor);
+                totalEntradas += parseFloat(item.valor);
+                entradas.push({ ...item, data: dataFormatada });
             } else {
-                saidas += parseFloat(item.valor);
+                totalSaidas += parseFloat(item.valor);
+                saidas.push({ ...item, data: dataFormatada });
             }
         });
 
-        const saldoFinal = entradas - saidas;
+        const saldoFinal = totalEntradas - totalSaidas;
 
-        // Criar documento PDF em memória
-        const doc = new PDFDocument();
+
+        const doc = new PDFDocument({ margin: 50 });
         res.setHeader("Content-Disposition", "inline; filename=relatorio-financeiro.pdf");
         res.setHeader("Content-Type", "application/pdf");
 
         doc.pipe(res);
 
-        // Cabeçalho do relatório
-        doc.fontSize(18).text("Relatório Financeiro", { align: "center" }).moveDown();
-        doc.fontSize(12).text(`Entradas: R$ ${entradas.toFixed(2)}`);
-        doc.text(`Saídas: R$ ${saidas.toFixed(2)}`);
-        doc.text(`Saldo Final: R$ ${saldoFinal.toFixed(2)}`).moveDown();
+        
+        const logoPath = path.join(__dirname, "assets", "senac-logo-0.png");
+        if (fs.existsSync(logoPath)) {
+            doc.image(logoPath, 50, 50, { width: 100 });
+        }
 
-        // Listar lançamentos
-        doc.fontSize(14).text("Lançamentos:", { underline: true }).moveDown();
-        result.rows.forEach((item) => {
-            doc.fontSize(12).text(
-                `${item.data}: ${item.tipo.toUpperCase()} - R$ ${parseFloat(item.valor).toFixed(2)} - ${item.descricao}`
-            );
-        });
+        doc
+            .fontSize(20)
+            .text("Relatório de Tesouraria", { align: "center" })
+            .moveDown(2);
 
-        doc.end(); // Finaliza o stream e envia o PDF na resposta
+        // Resumo financeiro
+        doc.fontSize(14).text(`Entradas: R$ ${totalEntradas.toFixed(2)}`);
+        doc.text(`Saídas: R$ ${totalSaidas.toFixed(2)}`);
+        doc.text(`Saldo Final: R$ ${saldoFinal.toFixed(2)}`).moveDown(2);
 
+        // Função para desenhar tabela
+        function desenharTabela(doc, title, data) {
+            doc
+                .fontSize(16)
+                .text(title, { underline: true })
+                .moveDown(1);
+
+            if (data.length === 0) {
+                doc.text("Nenhum lançamento registrado").moveDown();
+                return;
+            }
+
+            const colX = [50, 170, 280, 450];
+            doc.fontSize(12);
+
+            doc.text("Data", colX[0]).text("Tipo", colX[1]).text("Valor", colX[2]).text("Descrição", colX[3]).moveDown(0.5);
+            doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke().moveDown(0.5);
+
+            data.forEach((item) => {
+                doc
+                    .text(item.data, colX[0])
+                    .text(item.tipo.toUpperCase(), colX[1])
+                    .text(`R$ ${parseFloat(item.valor).toFixed(2)}`, colX[2])
+                    .text(item.descricao, colX[3])
+                    .moveDown(0.5);
+            });
+
+            doc.moveDown(1);
+        }
+
+        desenharTabela(doc, "Entradas", entradas);
+        desenharTabela(doc, "Saídas", saidas);
+
+        doc.end();
     } catch (err) {
         console.error("Erro ao gerar relatório:", err);
         res.status(500).json({ success: false, message: "Erro ao gerar relatório" });
     }
 });
+
 
 // Rota para registrar uma venda
 app.post('/vendas', async (req, res) => {
