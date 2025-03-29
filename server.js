@@ -219,41 +219,37 @@ app.get("/relatorio-financeiro", async (req, res) => {
             light: '#f5f5f5'
         };
 
-        // 6. Cabeçalho
+        // 6. Cabeçalho (sem data)
         doc.image(path.join(__dirname, 'public', 'assets', 'senac-logo-0.png'), 40, 30, { width: 80 })
            .fontSize(18)
            .fillColor(colors.primary)
-           .text('RELATÓRIO FINANCEIRO', 130, 45)
-           .fontSize(10)
-           .fillColor('#666')
-           .text('Gerado em: ' + moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm"), 130, 70);
+           .text('RELATÓRIO FINANCEIRO', 130, 45);
 
         // 7. Resumo Financeiro
-        doc.rect(40, 100, 515, 70)
+        doc.rect(40, 90, 515, 70)
            .fill(colors.light)
            .stroke(colors.primary);
 
         doc.fontSize(12)
            .fillColor(colors.primary)
-           .text('RESUMO FINANCEIRO', 50, 110, { underline: true });
+           .text('RESUMO FINANCEIRO', 50, 100, { underline: true });
 
         const colWidth = 150;
         doc.fontSize(10)
-           .text('Total Entradas', 50, 130)
-           .text('Total Saídas', 50 + colWidth, 130)
-           .text('Saldo Final', 50 + colWidth * 2, 130);
+           .text('Total Entradas', 50, 120)
+           .text('Total Saídas', 50 + colWidth, 120)
+           .text('Saldo Final', 50 + colWidth * 2, 120);
 
         doc.fontSize(12)
            .fillColor(colors.success)
-           .text(`R$ ${totalEntradas.toFixed(2)}`, 50, 145)
+           .text(`R$ ${totalEntradas.toFixed(2)}`, 50, 135)
            .fillColor(colors.danger)
-           .text(`R$ ${totalSaidas.toFixed(2)}`, 50 + colWidth, 145)
+           .text(`R$ ${totalSaidas.toFixed(2)}`, 50 + colWidth, 135)
            .fillColor(saldoFinal >= 0 ? colors.success : colors.danger)
-           .text(`R$ ${Math.abs(saldoFinal).toFixed(2)}`, 50 + colWidth * 2, 145)
-           .text(saldoFinal >= 0 ? '(Positivo)' : '(Negativo)', 50 + colWidth * 2, 160, { fontSize: 10 });
+           .text(`R$ ${Math.abs(saldoFinal).toFixed(2)}`, 50 + colWidth * 2, 135);
 
-        // 8. Tabela de Lançamentos (100% centralizada)
-        const tableTop = 190;
+        // 8. Tabela de Lançamentos
+        const tableTop = 180;
         doc.fontSize(14)
            .fillColor(colors.primary)
            .text('LANÇAMENTOS', { 
@@ -264,26 +260,19 @@ app.get("/relatorio-financeiro", async (req, res) => {
            });
 
         if (lancamentos.length > 0) {
-            // Cabeçalho da tabela
+            // Cabeçalho da tabela (agora visível)
             doc.font('Helvetica-Bold')
                .fontSize(10)
                .fillColor('#fff')
                .rect(40, tableTop + 30, 515, 20)
                .fill(colors.primary);
 
-            const headers = [
-                { text: "Data", x: 45, width: 100 },
-                { text: "Tipo", x: 155, width: 70, align: "center" },
-                { text: "Descrição", x: 235, width: 200 },
-                { text: "Valor (R$)", x: 445, width: 100, align: "right" }
-            ];
-
-            headers.forEach(header => {
-                doc.text(header.text, header.x, tableTop + 35, {
-                    width: header.width,
-                    align: header.align || 'left'
-                });
-            });
+            // Texto do cabeçalho (branco sobre fundo escuro)
+            doc.fillColor('#ffffff')
+               .text('Data', 45, tableTop + 35, { width: 100 })
+               .text('Tipo', 155, tableTop + 35, { width: 70, align: "center" })
+               .text('Descrição', 235, tableTop + 35, { width: 200 })
+               .text('Valor (R$)', 445, tableTop + 35, { width: 100, align: "right" });
 
             // Linhas da tabela
             let y = tableTop + 50;
@@ -308,17 +297,15 @@ app.get("/relatorio-financeiro", async (req, res) => {
                .text('Nenhum lançamento registrado', { align: 'center', y: tableTop + 50 });
         }
 
-        // 9. Rodapé
-        const footerY = doc.page.height - 50;
+        // 9. Rodapé (na última linha da página)
+        const footerText = `© ${new Date().getFullYear()} Sistema de Tesouraria - Relatório gerado automaticamente em ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`;
+        
         doc.fontSize(9)
            .fillColor('#666')
-           .text(`© ${new Date().getFullYear()} Sistema de Tesouraria - Relatório gerado automaticamente`, { 
+           .text(footerText, { 
                align: 'center',
-               y: footerY
-           })
-           .text(`Emitido em: ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`, {
-               align: 'center',
-               y: footerY + 15
+               y: doc.page.height - 40, // Posiciona no final da página
+               width: 515
            });
 
         doc.end();
