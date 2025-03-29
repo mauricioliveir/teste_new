@@ -175,10 +175,10 @@ app.get("/tesouraria", async (req, res) => {
 // Rota para gerar relatório financeiro em PDF
 app.get("/relatorio-financeiro", async (req, res) => {
     try {
-        // Consulta ao banco de dados
+        // 1. Consulta ao banco de dados
         const result = await pool.query("SELECT * FROM tesouraria ORDER BY data DESC");
 
-        // Processamento dos dados
+        // 2. Processamento dos dados
         let lancamentos = [];
         let totalEntradas = 0;
         let totalSaidas = 0;
@@ -206,7 +206,7 @@ app.get("/relatorio-financeiro", async (req, res) => {
 
         const saldoFinal = totalEntradas - totalSaidas;
 
-        // Configuração do PDF
+        // 3. Configuração do PDF
         const doc = new PDFDocument({ 
             margin: 30,
             size: 'A4',
@@ -214,13 +214,13 @@ app.get("/relatorio-financeiro", async (req, res) => {
             font: 'Helvetica'
         });
 
-        // Configuração para download automático
+        // Configura para download automático
         const fileName = `relatorio-financeiro-${moment().format('DD-MM-YYYY')}.pdf`;
         res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
         res.setHeader("Content-Type", "application/pdf");
         doc.pipe(res);
 
-        // Cores e estilos
+        // 4. Cores e estilos
         const colors = {
             primary: '#2c3e50',
             success: '#27ae60',
@@ -229,7 +229,7 @@ app.get("/relatorio-financeiro", async (req, res) => {
             text: '#333333'
         };
 
-        // Cabeçalho
+        // 5. Cabeçalho (com logo)
         const logoPath = path.join(__dirname, "public", "assets", "senac-logo-0.png");
         if (fs.existsSync(logoPath)) {
             doc.image(logoPath, 30, 20, { width: 80 });
@@ -252,7 +252,7 @@ app.get("/relatorio-financeiro", async (req, res) => {
            })
            .moveDown(1.5);
 
-        // Resumo Financeiro
+        // 6. Resumo Financeiro (card)
         const resumoY = doc.y;
         doc.roundedRect(30, resumoY, 535, 60, 5)
            .fill(colors.light)
@@ -276,16 +276,19 @@ app.get("/relatorio-financeiro", async (req, res) => {
            .text(`R$ ${totalSaidas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 40 + colWidth, resumoY + 38)
            .fillColor(saldoFinal >= 0 ? colors.success : colors.danger)
            .text(`R$ ${Math.abs(saldoFinal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 40 + colWidth * 2, resumoY + 38)
-           .text(saldoFinal >= 0 ? "↑ Positivo" : "↓ Negativo", 40 + colWidth * 2, resumoY + 52, {
+           .text(saldoFinal >= 0 ? "(Positivo)" : "(Negativo)", 40 + colWidth * 2, resumoY + 52, {
                fontSize: 8
            });
 
         doc.y = resumoY + 70;
 
-        // Tabela de lançamentos
+        // 7. Tabela de Lançamentos (ajustada)
         doc.fontSize(12)
            .fillColor(colors.primary)
-           .text("LANÇAMENTOS", { underline: true })
+           .text("LANÇAMENTOS", { 
+               align: "center", // Centralizado
+               underline: true 
+           })
            .moveDown(0.5);
 
         if (lancamentos.length === 0) {
@@ -293,12 +296,12 @@ app.get("/relatorio-financeiro", async (req, res) => {
                .text("Nenhum lançamento registrado no período")
                .moveDown();
         } else {
-            // Configurações da tabela
+            // Configurações das colunas (sem emojis)
             const columns = [
-                { header: "📅 Data", key: "data", width: 100, align: "left" },
-                { header: "📂 Tipo", key: "tipo", width: 70, align: "center" },
-                { header: "📝 Descrição", key: "descricao", width: 240, align: "left" },
-                { header: "💰 Valor (R$)", key: "valor", width: 80, align: "right" }
+                { header: "Data", key: "data", width: 100, align: "left" },
+                { header: "Tipo", key: "tipo", width: 70, align: "center" },
+                { header: "Descrição", key: "descricao", width: 240, align: "left" },
+                { header: "Valor (R$)", key: "valor", width: 80, align: "right" }
             ];
 
             const rowHeight = 20;
@@ -365,7 +368,7 @@ app.get("/relatorio-financeiro", async (req, res) => {
             doc.y = y + 15;
         }
 
-        // Rodapé
+        // 8. Rodapé
         doc.fontSize(8)
            .fillColor('#7f8c8d')
            .text("© Sistema de Tesouraria - Relatório gerado automaticamente", 30, doc.page.height - 30, {
