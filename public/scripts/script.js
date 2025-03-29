@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
         initCEPValidation();
         initCPFValidation();
         initFormCompletionCheck();
+        initTesouraria()
         initEstoque();
         atualizarFluxoCaixa();
 
@@ -196,31 +197,81 @@ function initFormCompletionCheck() {
 }
 
 // Função para enviar dados de tesouraria
-document.getElementById('tesouraria-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const tipo = document.getElementById('tipo').value;
-    const valor = parseFloat(document.getElementById('valor').value);
-    const descricao = document.getElementById('descricao').value;
+function initTesouraria() {
+    const tesourariaForm = document.getElementById('tesouraria-form');
+    if (tesourariaForm) {
+        tesourariaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tipo = document.getElementById('tipo').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const descricao = document.getElementById('descricao').value;
 
-    try {
-        const response = await fetch('/tesouraria', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tipo, valor, descricao })
+            if (!tipo || isNaN(valor) || !descricao) {
+                alert("Preencha todos os campos corretamente!");
+                return;
+            }
+
+            try {
+                const response = await fetch('/tesouraria', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tipo, valor, descricao })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Lançamento realizado com sucesso!');
+                    atualizarFluxoCaixa();
+                    // Limpa apenas os campos de valor e descrição, mantendo o tipo selecionado
+                    document.getElementById('valor').value = '';
+                    document.getElementById('descricao').value = '';
+                } else {
+                    alert(data.message || 'Erro ao realizar lançamento.');
+                }
+            } catch (err) {
+                console.error('Erro ao enviar dados:', err);
+                alert('Erro na comunicação com o servidor.');
+            }
         });
-        const data = await response.json();
-        if (data.success) {
-            alert('Lançamento realizado com sucesso!');
-            atualizarFluxoCaixa();
-            document.getElementById('valor').value = '';
-            document.getElementById('descricao').value = '';
-        } else {
-            alert('Erro ao realizar lançamento.');
-        }
-    } catch (err) {
-        console.error('Erro ao enviar dados:', err);
     }
-});
+}
+
+// ... (mantenha todas as outras funções existentes como initNavigation, initCEPValidation, etc.)
+
+// Função para atualizar o fluxo de caixa (versão otimizada)
+async function atualizarFluxoCaixa() {
+    try {
+        const response = await fetch('/tesouraria');
+        if (!response.ok) throw new Error('Erro na resposta do servidor');
+        
+        const data = await response.json();
+        const lancamentos = data.lancamentos || [];
+
+        const { entradas, saidas } = lancamentos.reduce((acc, lancamento) => {
+            if (lancamento.tipo === 'entrada') {
+                acc.entradas += parseFloat(lancamento.valor) || 0;
+            } else {
+                acc.saidas += parseFloat(lancamento.valor) || 0;
+            }
+            return acc;
+        }, { entradas: 0, saidas: 0 });
+
+        const saldoFinal = entradas - saidas;
+
+        // Atualiza a UI apenas se os elementos existirem
+        const entradasEl = document.getElementById('entradas');
+        const saidasEl = document.getElementById('saidas');
+        const saldoFinalEl = document.getElementById('saldo-final');
+        
+        if (entradasEl) entradasEl.textContent = entradas.toFixed(2);
+        if (saidasEl) saidasEl.textContent = saidas.toFixed(2);
+        if (saldoFinalEl) saldoFinalEl.textContent = saldoFinal.toFixed(2);
+    } catch (err) {
+        console.error('Erro ao atualizar fluxo de caixa:', err);
+    }
+  
+
 
 // Função para atualizar o fluxo de caixa
 async function atualizarFluxoCaixa() {
@@ -250,69 +301,8 @@ async function atualizarFluxoCaixa() {
     }
 }
 
-// Função para gerar relatório financeiro em PDF
-document.getElementById("gerar-relatorio-financeiro").addEventListener("click", () => {
-    window.open("/relatorio-financeiro", "_blank");
-});
-
-
-
 // Inicializa o fluxo de caixa ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
     atualizarFluxoCaixa();
 });
-
-// Função para registrar uma venda
-document.getElementById('cadastro-venda-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const cliente = document.getElementById('cliente-venda').value;
-    const produto = document.getElementById('produto-venda').value;
-    const valor = parseFloat(document.getElementById('valor-venda').value);
-
-    try {
-        const response = await fetch('/vendas', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cliente, produto, valor })
-        });
-        const data = await response.json();
-        if (data.success) {
-            alert('Venda registrada com sucesso!');
-            exibirNotaFiscal(data.venda);
-        } else {
-            alert('Erro ao registrar venda.');
-        }
-    } catch (err) {
-        console.error('Erro ao enviar dados:', err);
-    }
-});
-
-// Função para exibir a nota fiscal
-function exibirNotaFiscal(venda) {
-    const notaFiscalDiv = document.getElementById('nota-fiscal');
-    notaFiscalDiv.innerHTML = `
-        <h3>Nota Fiscal</h3>
-        <p><strong>Cliente:</strong> ${venda.cliente}</p>
-        <p><strong>Produto:</strong> ${venda.produto}</p>
-        <p><strong>Valor:</strong> R$ ${venda.valor.toFixed(2)}</p>
-        <p><strong>Data:</strong> ${new Date(venda.data).toLocaleString()}</p>
-    `;
-}
-
-// Função para gerar relatório de vendas em PDF
-document.getElementById('gerar-relatorio-vendas').addEventListener('click', () => {
-    window.location.href = '/relatorio-vendas';
-});
-
-// Função para carregar as vendas ao abrir a página
-async function carregarVendas() {
-    try {
-        const response = await fetch('/vendas');
-        const data = await response.json();
-        if (data.success && data.vendas.length > 0) {
-            exibirNotaFiscal(data.vendas[0]); // Exibe a última venda registrada
-        }
-    } catch (err) {
-        console.error('Erro ao carregar vendas:', err);
-    }
 }
