@@ -31,6 +31,7 @@
     "nodemailer": "^6.10.0",
     "path": "^0.12.7",
     "pdfkit": "^0.16.0",
+    "pdfkit-table": "^0.1.99",
     "pg": "^8.13.3",
     "teste": "file:"
   },
