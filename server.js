@@ -187,11 +187,12 @@ app.get("/relatorio-financeiro", async (req, res) => {
 
         const saldoFinal = entradas - saidas;
 
-        // Criar o documento PDF
+        // Criar documento PDF em memória
         const doc = new PDFDocument();
-        const filePath = path.join(__dirname, "public", "relatorio-financeiro.pdf");
-        const stream = fs.createWriteStream(filePath);
-        doc.pipe(stream);
+        res.setHeader("Content-Disposition", "inline; filename=relatorio-financeiro.pdf");
+        res.setHeader("Content-Type", "application/pdf");
+
+        doc.pipe(res);
 
         // Cabeçalho do relatório
         doc.fontSize(18).text("Relatório Financeiro", { align: "center" }).moveDown();
@@ -207,17 +208,8 @@ app.get("/relatorio-financeiro", async (req, res) => {
             );
         });
 
-        doc.end();
+        doc.end(); // Finaliza o stream e envia o PDF na resposta
 
-        // Espera a finalização da escrita no arquivo antes de enviá-lo
-        stream.on("finish", () => {
-            res.download(filePath, "relatorio-financeiro.pdf", (err) => {
-                if (err) {
-                    console.error("Erro ao enviar o PDF:", err);
-                    res.status(500).send("Erro ao gerar PDF");
-                }
-            });
-        });
     } catch (err) {
         console.error("Erro ao gerar relatório:", err);
         res.status(500).json({ success: false, message: "Erro ao gerar relatório" });

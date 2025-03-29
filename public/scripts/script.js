@@ -249,8 +249,8 @@ async function atualizarFluxoCaixa() {
 }
 
 // Função para gerar relatório financeiro em PDF
-document.getElementById('gerar-relatorio-financeiro').addEventListener('click', () => {
-    window.location.href = '/relatorio-financeiro';
+document.getElementById("gerar-relatorio-financeiro").addEventListener("click", () => {
+    window.open("/relatorio-financeiro", "_blank");
 });
 
 // Inicializa o fluxo de caixa ao carregar a página
