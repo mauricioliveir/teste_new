@@ -261,58 +261,6 @@ app.get("/relatorio-financeiro", async (req, res) => {
 });
 
 
-// Rota para registrar uma venda
-app.post('/vendas', async (req, res) => {
-    const { cliente, produto, valor } = req.body;
-    try {
-        const result = await pool.query(
-            'INSERT INTO vendas (cliente, produto, valor) VALUES ($1, $2, $3) RETURNING *',
-            [cliente, produto, valor]
-        );
-        res.json({ success: true, message: 'Venda registrada com sucesso!', venda: result.rows[0] });
-    } catch (err) {
-        console.error('Erro ao registrar venda:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para listar todas as vendas
-app.get('/vendas', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM vendas ORDER BY data DESC');
-        res.json({ success: true, vendas: result.rows });
-    } catch (err) {
-        console.error('Erro ao buscar vendas:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
-// Rota para gerar relatório de vendas em PDF
-app.get('/relatorio-vendas', async (req, res) => {
-    try {
-        const vendas = await pool.query('SELECT * FROM vendas ORDER BY data DESC');
-
-        const doc = new PDFDocument();
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=relatorio-vendas.pdf');
-
-        doc.pipe(res);
-
-        doc.fontSize(16).text('Relatório de Vendas', { align: 'center' });
-        doc.moveDown();
-
-        doc.fontSize(12).text('Vendas Registradas:', { underline: true });
-        vendas.rows.forEach((venda, index) => {
-            doc.text(`${index + 1}. Cliente: ${venda.cliente}, Produto: ${venda.produto}, Valor: R$ ${venda.valor.toFixed(2)}, Data: ${venda.data.toLocaleString()}`);
-        });
-
-        doc.end();
-    } catch (err) {
-        console.error('Erro ao gerar relatório de vendas:', err);
-        res.status(500).json({ success: false, message: 'Erro no servidor.' });
-    }
-});
-
 // Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
