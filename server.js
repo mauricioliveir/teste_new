@@ -298,6 +298,46 @@ app.get("/relatorio-financeiro", async (req, res) => {
     }
 });
 
+// Rota de teste para validar funcionamento do sistema
+app.get('/teste', async (req, res) => {
+    try {
+        // Verifica conexão com o banco de dados
+        const dbCheck = await pool.query('SELECT NOW() as current_time');
+        
+        // Verifica se as tabelas principais existem
+        const tablesCheck = await pool.query(`
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            AND table_name IN ('users', 'funcionarios', 'tesouraria')
+        `);
+        
+        const systemStatus = {
+            success: true,
+            message: 'Sistema funcionando corretamente',
+            timestamp: new Date().toISOString(),
+            database: {
+                connected: true,
+                server_time: dbCheck.rows[0].current_time,
+                tables_found: tablesCheck.rows.map(row => row.table_name)
+            },
+            server: {
+                port: port,
+                environment: process.env.NODE_ENV || 'development'
+            }
+        };
+        
+        res.json(systemStatus);
+    } catch (err) {
+        console.error('Erro no teste do sistema:', err);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro ao verificar sistema',
+            error: err.message 
+        });
+    }
+});
+
 // Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
